@@ -62,6 +62,8 @@ export class WebpackBundler extends Bundler {
     type = 'module',
     workingDir,
     additionalConfiguration,
+    isPackageInstallSilent,
+    packageManager,
   }: WebpackBundleOptions) {
     // const dist = path.resolve(this.outDir, this.dist);
     // const dist = path.resolve(this.outDir);
@@ -104,7 +106,10 @@ export class WebpackBundler extends Bundler {
 
         if (skipPackageInstall !== true) {
           info(`PNPM Install to ${this.outDir}...`);
-          await installPackages(this.outDir);
+          await installPackages(this.outDir, {
+            isSilent: isPackageInstallSilent,
+            packageManager,
+          });
         }
 
         info(`Bundle the code for entry file ${indexJSEntryFile}`);
