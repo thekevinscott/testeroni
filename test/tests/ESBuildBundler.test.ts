@@ -109,7 +109,7 @@ describe('ESBuildBundler', () => {
     const title = 'esbuilderoo';
     const bundler = new ESBuildBundler(outDir);
     await bundler.bundle({
-      skipNpmInstall: true,
+      skipPackageInstall: true,
       title,
     });
     expect(path.join(outDir, 'index.html')).toMatchHTML({
@@ -135,7 +135,7 @@ describe('ESBuildBundler', () => {
     }));
     const bundler = new ESBuildBundler(outDir);
     await bundler.bundle({
-      skipNpmInstall: true,
+      skipPackageInstall: true,
       keepWorkingFiles: true,
       title,
       dependencies,
@@ -167,7 +167,7 @@ describe('ESBuildBundler', () => {
     }));
     const bundler = new ESBuildBundler(outDir);
     await bundler.bundle({
-      skipNpmInstall: true,
+      skipPackageInstall: true,
       keepWorkingFiles: true,
       title,
       dependencies,
@@ -205,7 +205,7 @@ describe('ESBuildBundler', () => {
     }));
     const bundler = new ESBuildBundler(outDir);
     await bundler.bundle({
-      skipNpmInstall: true,
+      skipPackageInstall: true,
       keepWorkingFiles: true,
       title,
       dependencies,
@@ -244,7 +244,7 @@ describe('ESBuildBundler', () => {
     }));
     const bundler = new ESBuildBundler(outDir);
     await bundler.bundle({
-      skipNpmInstall: true,
+      skipPackageInstall: true,
       keepWorkingFiles: true,
       title,
       dependencies,
@@ -288,7 +288,7 @@ describe('ESBuildBundler', () => {
     }));
     const bundler = new ESBuildBundler(outDir);
     await bundler.bundle({
-      skipNpmInstall: true,
+      skipPackageInstall: true,
       title,
       dependencies,
       devDependencies,

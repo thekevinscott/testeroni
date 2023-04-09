@@ -246,7 +246,7 @@ describe('ESBuildBundler', () => {
     await bundler.bundle({
       workingDir,
       title,
-      skipNpmInstall: true,
+      skipPackageInstall: true,
     });
 
     expect(pnpmInstall).not.toHaveBeenCalled();

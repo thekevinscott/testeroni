@@ -36,7 +36,7 @@ export class NodeBundler extends Bundler {
 
   async bundle({
     keepWorkingFiles,
-    skipNpmInstall,
+    skipPackageInstall,
     dependencies = {},
     devDependencies = {},
     module = true,
@@ -56,7 +56,7 @@ export class NodeBundler extends Bundler {
           },
         });
 
-        if (skipNpmInstall !== true) {
+        if (skipPackageInstall !== true) {
           info(`PNPM Install to ${workingDir}...`);
           await pnpmInstall(workingDir, {
             // isSilent,

@@ -142,7 +142,7 @@ describe('bundle', () => {
       const title = 'esbuildo';
       const options = {
         title,
-        skipNpmInstall: true,
+        skipPackageInstall: true,
         workingDir,
       };
       await bundle(BundlerName.esbuild, outDir, options);
@@ -163,7 +163,7 @@ describe('bundle', () => {
       };
       await makeFakeLocalPackages(dependencies, devDependencies)
       await bundle(BundlerName.esbuild, outDir, {
-        skipNpmInstall: true,
+        skipPackageInstall: true,
         keepWorkingFiles: true,
         title,
         dependencies,
@@ -189,7 +189,7 @@ describe('bundle', () => {
       };
       await makeFakeLocalPackages(dependencies, devDependencies)
       await bundle(BundlerName.esbuild, outDir, {
-        skipNpmInstall: true,
+        skipPackageInstall: true,
         keepWorkingFiles: true,
         title,
         dependencies,
@@ -221,7 +221,7 @@ describe('bundle', () => {
       };
       await makeFakeLocalPackages(dependencies, devDependencies)
       await bundle(BundlerName.esbuild, outDir, {
-        skipNpmInstall: true,
+        skipPackageInstall: true,
         keepWorkingFiles: true,
         title,
         dependencies,
@@ -253,7 +253,7 @@ describe('bundle', () => {
       };
       await makeFakeLocalPackages(dependencies, devDependencies)
       await bundle(BundlerName.esbuild, outDir, {
-        skipNpmInstall: true,
+        skipPackageInstall: true,
         keepWorkingFiles: true,
         title,
         dependencies,
@@ -289,7 +289,7 @@ describe('bundle', () => {
       };
       await makeFakeLocalPackages(dependencies, devDependencies)
       await bundle('esbuild', outDir, {
-        skipNpmInstall: true,
+        skipPackageInstall: true,
         title,
         dependencies,
         devDependencies,
@@ -309,7 +309,7 @@ describe('bundle', () => {
       const title = 'webpacky';
       await bundle('webpack', workingDir, {
         title,
-        skipNpmInstall: true,
+        skipPackageInstall: true,
       });
       expect(path.resolve(workingDir, 'index.html')).toMatchHTML({
         title,
@@ -328,7 +328,7 @@ describe('bundle', () => {
       };
       await makeFakeLocalPackages(dependencies, devDependencies)
       await bundle('webpack', outDir, {
-        skipNpmInstall: true,
+        skipPackageInstall: true,
         keepWorkingFiles: true,
         title,
         dependencies,
@@ -354,7 +354,7 @@ describe('bundle', () => {
       };
       await makeFakeLocalPackages(dependencies, devDependencies)
       await bundle('webpack', workingDir, {
-        skipNpmInstall: true,
+        skipPackageInstall: true,
         keepWorkingFiles: true,
         title,
         dependencies,
@@ -386,7 +386,7 @@ describe('bundle', () => {
       };
       await makeFakeLocalPackages(dependencies, devDependencies)
       await bundle('webpack', outDir, {
-        skipNpmInstall: true,
+        skipPackageInstall: true,
         keepWorkingFiles: true,
         title,
         dependencies,
@@ -418,7 +418,7 @@ describe('bundle', () => {
       };
       await makeFakeLocalPackages(dependencies, devDependencies)
       await bundle('webpack', outDir, {
-        skipNpmInstall: true,
+        skipPackageInstall: true,
         keepWorkingFiles: true,
         title,
         dependencies,
@@ -454,7 +454,7 @@ describe('bundle', () => {
       };
       await makeFakeLocalPackages(dependencies, devDependencies)
       await bundle('webpack', outDir, {
-        skipNpmInstall: true,
+        skipPackageInstall: true,
         title,
         dependencies,
         devDependencies,
@@ -482,7 +482,7 @@ describe('bundle', () => {
       await makeFakeLocalPackages(dependencies, devDependencies)
       await bundle('node', outDir, {
         module: false,
-        skipNpmInstall: true,
+        skipPackageInstall: true,
         keepWorkingFiles: true,
         dependencies,
         devDependencies,
@@ -506,7 +506,7 @@ describe('bundle', () => {
       };
       await makeFakeLocalPackages(dependencies, devDependencies)
       await bundle('node', outDir, {
-        skipNpmInstall: true,
+        skipPackageInstall: true,
         dependencies,
         devDependencies,
       });
@@ -531,7 +531,7 @@ describe('bundle', () => {
       }));
       await bundle('node', outDir, {
         module: true,
-        skipNpmInstall: true,
+        skipPackageInstall: true,
         keepWorkingFiles: true,
         dependencies,
         devDependencies,
@@ -571,7 +571,7 @@ describe('bundle', () => {
       }));
       await bundle('node', outDir, {
         module: true,
-        skipNpmInstall: true,
+        skipPackageInstall: true,
         keepWorkingFiles: true,
         dependencies,
         devDependencies,

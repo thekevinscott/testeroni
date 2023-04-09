@@ -55,7 +55,7 @@ export class WebpackBundler extends Bundler {
 
   async bundle({
     keepWorkingFiles,
-    skipNpmInstall,
+    skipPackageInstall,
     title = this.name,
     dependencies = {},
     devDependencies = {},
@@ -102,7 +102,7 @@ export class WebpackBundler extends Bundler {
           ),
         ]);
 
-        if (skipNpmInstall !== true) {
+        if (skipPackageInstall !== true) {
           info(`PNPM Install to ${this.outDir}...`);
           await pnpmInstall(this.outDir);
         }

@@ -49,7 +49,7 @@ export class ESBuildBundler extends Bundler {
   }
 
   async bundle({
-    skipNpmInstall,
+    skipPackageInstall,
     keepWorkingFiles,
     title = this.name,
     dependencies = {},
@@ -98,7 +98,7 @@ export class ESBuildBundler extends Bundler {
           ),
         ]);
 
-        if (skipNpmInstall !== true) {
+        if (skipPackageInstall !== true) {
           info(`PNPM Install to ${outDir}...`);
           await pnpmInstall(outDir);
         }

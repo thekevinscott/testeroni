@@ -31,7 +31,7 @@ export interface SharedBundleOptions {
   workingDir?: string;
   title?: string;
   module?: boolean;
-  skipNpmInstall?: boolean;
+  skipPackageInstall?: boolean;
   keepWorkingFiles?: boolean;
   files?: string[];
   type?: 'module' | 'commonjs';
