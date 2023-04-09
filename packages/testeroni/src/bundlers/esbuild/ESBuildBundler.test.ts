@@ -25,9 +25,7 @@ vi.mock('../../common/get-template.js', async () => {
   const actual = await vi.importActual('../../common/get-template.js') as typeof _getTemplate;
   return {
     ...actual,
-    getTemplate: vi.fn().mockImplementation(async (templateName, args) => {
-      return actual.getTemplate(templateName.replace('dist', 'src'), args);
-    }),
+    getTemplate: vi.fn().mockImplementation((templateName, args) => actual.getTemplate(templateName.replace('dist', 'src'), args)),
   };
 });
 

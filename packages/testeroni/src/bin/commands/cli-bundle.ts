@@ -1,6 +1,6 @@
 import { Command, } from "commander";
 import { bundle, } from "../../bundlers/bundle.js";
-import { BUNDLERS, SharedBundleOptions, BundlerName, } from "../../bundlers/types.js";
+import { BUNDLERS, SharedBundleOptions, BundlerName, BundlerNameString, VALID_BUNDLER_NAMES, } from "../../bundlers/types.js";
 
 function parseArgs(args: string): SharedBundleOptions {
   try {
@@ -10,18 +10,15 @@ function parseArgs(args: string): SharedBundleOptions {
   }
 }
 
-async function main<B extends BundlerName>(outDir: string, {
+async function main(outDir: string, {
   bundlerName: name,
   args,
 }: {
-  bundlerName: B;
+  bundlerName: string;
   args: string;
 }) {
   if (!name) {
     throw new Error('No bundler specified');
-  }
-  if (name in BUNDLERS === false) {
-    throw new Error(`Unknown bundler: ${name}`);
   }
   await bundle(name, outDir, parseArgs(args));
 };

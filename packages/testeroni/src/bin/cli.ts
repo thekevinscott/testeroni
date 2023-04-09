@@ -3,7 +3,7 @@
 import { Command, } from 'commander';
 import {
   registerScript as registerScriptForBundle,
-} from './commands/bundle.js';
+} from './commands/cli-bundle.js';
 import { readFileSync, } from 'fs';
 
 const packageJSONPath = import.meta.url.replace(/\/[^/]+$/, '/../../package.json');
