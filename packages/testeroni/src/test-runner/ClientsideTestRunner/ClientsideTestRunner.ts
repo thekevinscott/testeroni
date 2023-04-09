@@ -14,6 +14,7 @@ import {
   isSelenium,
 } from './type-guards.js';
 import type { SeleniumPage, } from './webdriver/selenium-page.js';
+import { info } from '../../common/logger.js';
 // import { mockCdn, } from './mock-cdn.js';
 
 type Bundle = () => Promise<void>;
@@ -167,23 +168,19 @@ export class ClientsideTestRunner<D extends SupportedDriver> {
 
   public async navigateToServer(pageTitleToAwait: string | null) {
     const url = this.getServerURL();
-    if (isPuppeteer(this.driver.name)) {
-      const page = this.page as Page<SupportedDriver.puppeteer>;
-      await page.goto(url);
-      if (pageTitleToAwait !== null) {
+    const page = isPuppeteer(this.driver.name) ? this.page as Page<SupportedDriver.puppeteer> : isPlaywright(this.driver.name) ? this.page as Page<SupportedDriver.playwright> : isSelenium(this.driver.name) ? this.page as SeleniumPage : undefined;
+    if (page === undefined) {
+      throw new Error(`Page is undefined, invalid driver: ${this.driver.name}`);
+    }
+    await page.goto(url);
+    if (pageTitleToAwait !== null) {
+      const timer = setTimeout(() => {
+        info(`Waiting for title ${pageTitleToAwait}...`);
+      }, 1000);
+      try {
         await this.waitForTitle(pageTitleToAwait);
-      }
-    } else if (isPlaywright(this.driver.name)) {
-      const page = this.page as Page<SupportedDriver.playwright>;
-      await page.goto(url);
-      if (pageTitleToAwait !== null) {
-        await this.waitForTitle(pageTitleToAwait);
-      }
-    } else if (isSelenium(this.driver.name)) {
-      const page = this.page as SeleniumPage;
-      await page.goto(url);
-      if (pageTitleToAwait !== null) {
-        await this.waitForTitle(pageTitleToAwait);
+      } finally {
+        clearTimeout(timer);
       }
     }
   }
