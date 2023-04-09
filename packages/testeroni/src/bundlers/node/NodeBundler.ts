@@ -2,7 +2,7 @@ import path from 'path';
 import { Bundler, } from '../utils/Bundler.js';
 import { removeIfExists, } from '../utils/remove-if-exists.js';
 import { getTemplate as _getTemplate, } from '../../common/get-template.js';
-import { pnpmInstall, } from '../../common/npm.js';
+import { installPackages, } from '../../common/npm.js';
 import { info, } from '../../common/logger.js';
 import { writePackageJSON, } from '../utils/write-package-json.js';
 import { DIST_ROOT, } from '../utils/get-root.js';
@@ -58,7 +58,7 @@ export class NodeBundler extends Bundler {
 
         if (skipPackageInstall !== true) {
           info(`PNPM Install to ${workingDir}...`);
-          await pnpmInstall(workingDir, {
+          await installPackages(workingDir, {
             // isSilent,
             // registryURL,
           });

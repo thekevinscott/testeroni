@@ -55,7 +55,7 @@ export const npmInstall = async (cwd: string, {
   await runPackageCommand(command, cwd, 'npm');
 };
 
-export const pnpmInstall = async (cwd: string, _opts = {}) => {
+export const installPackages = async (cwd: string, _opts = {}) => {
   // const logLevel = getLogLevel();
   const command = [
     'pnpm',
