@@ -8,7 +8,7 @@ import { getHashedName, } from "../../common/get-hashed-name.js";
 import { info, } from "../../common/logger.js";
 import { exists, } from "../../common/fs.js";
 import { getTemplate, } from "../../common/get-template.js";
-import { refactorImports } from "./refactor-imports.js";
+import { hoistImports, } from "./hoist-imports.js";
 
 const __dirname = url.fileURLToPath(new URL('.', import.meta.url));
 const TEMPLATES_DIR = path.resolve(__dirname, './_templates');
@@ -46,6 +46,7 @@ const getPertinentLine = (error: Error) => {
 export class RunNodeScriptError extends Error {
   name = 'RunNodeScriptError';
   pertinentLine: string;
+  script?: string;
 
   constructor(error: unknown, _script?: string) {
     if (error instanceof Error) {
@@ -59,6 +60,7 @@ export class RunNodeScriptError extends Error {
     } else {
       throw new Error('error not an instance of Error within RunNodeScriptError');
     }
+    this.script = _script;
   }
 }
 
@@ -75,7 +77,7 @@ const runNodeScript = (contentFn: ContentFn, {
   const dataFile = path.join(tmpDir, getHashedName());
   const contents = await contentFn(dataFile);
 
-  await callExec(`node ${module ? '--input-type=module' : ''} -e "${refactorImports(contents.replace(/"/g, '\\"'))}"`, {
+  await callExec(`node ${module ? '--input-type=module' : ''} -e "${hoistImports(contents.replace(/"/g, '\\"'))}"`, {
     cwd,
     env: {
     },

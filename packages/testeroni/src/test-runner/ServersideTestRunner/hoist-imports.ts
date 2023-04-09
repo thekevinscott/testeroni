@@ -1,4 +1,4 @@
-export const refactorImports = (contents: string) => {
+export const hoistImports = (contents: string) => {
   const lines = contents.split('\n');
   const imports = [];
   for (let i = 0; i < lines.length; i++) {
