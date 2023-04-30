@@ -36,7 +36,7 @@ export const callExec = (cmd: string, options: ExecOptions, stdout: StdOut, stde
 
 const getPertinentLine = (error: Error) => {
   const message = error.message;
-  const pertinentPart = message.split('Error: ').pop();
+  const pertinentPart = message.split(/Error( \[.*?\])?:/).pop();
   if (!pertinentPart) {
     return 'error message does not contain "Error: " string';
   }

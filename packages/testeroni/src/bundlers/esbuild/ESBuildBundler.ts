@@ -75,7 +75,7 @@ export class ESBuildBundler extends Bundler {
         // this file is the final html file served to the user, I believe it is _not_ transformed
         const indexHTMLFile = path.join(outDir, 'index.html');
 
-        info('Bundling esbuild...');
+        // info('Bundling esbuild...');
         const dependencyKeys = Array.from(new Set(Object.keys({
           ...dependencies,
           ...devDependencies,
@@ -118,8 +118,6 @@ export class ESBuildBundler extends Bundler {
           outdir: outDir,
         }));
         info(`successfully bundled the code for entry file ${indexJSEntryFile}`);
-
-        info(`Bundled esbuild successfully for entry file ${indexJSEntryFile} to ${outDir}`);
       }, workingDir);
     } catch (err) {
       console.error(err);
