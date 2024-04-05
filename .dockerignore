@@ -1,0 +1,15 @@
+.pnpm-store
+assets
+coverage
+#dev
+dist
+docs
+examples
+#models
+node_modules
+#packages
+scratch
+#scripts
+test
+tmp
+volumes

@@ -1,0 +1,28 @@
+{
+  "name": "bundlers.servers.esbuild",
+  "private": true,
+  "type": "<%- type %>",
+  "version": "0.1.0",
+  "dependencies": <%- dependencies %> ,
+  "devDependencies": <%- devDependencies %> ,
+  "babel": {
+    "env": {
+      "test": {
+        "plugins": [
+          "@babel/plugin-transform-modules-commonjs"
+        ]
+      }
+    },
+    "presets": [
+      [
+        "@babel/preset-env",
+        {
+          "targets": {
+            "node": "current"
+          }
+        }
+      ],
+      "@babel/preset-typescript"
+    ]
+  }
+}

@@ -1,0 +1,101 @@
+{
+  "name": "testbuddy",
+  "type": "module",
+  "version": "0.0.1",
+  "author": "Kevin Scott",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/thekevinscott/testbuddy.git"
+  },
+  "files": [
+    "dist"
+  ],
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "exports": {
+    ".": "./dist/index.js"
+  },
+  "scripts": {
+    "lint": "wireit",
+    "test": "vitest",
+    "copy:templates": "wireit",
+    "build": "wireit",
+    "build:check": "wireit",
+    "build:esm": "wireit"
+  },
+  "wireit": {
+    "lint": {
+      "command": "eslint -c .eslintrc.cjs src --ext .ts"
+    },
+    "build:check": {
+      "command": "path-exists ./dist/index.js && path-exists ./dist/index.js.map && path-exists ./dist/index.d.ts "
+    },
+    "build:esm": {
+      "command": "tsc"
+    },
+    "copy:templates": {
+      "command": "cpx \"src/**/*.ejs\" ./dist"
+    },
+    "build": {
+      "command": "rimraf ./dist && pnpm build:esm && pnpm copy:templates && cp ../../README.md ./README.md && cp ../../LICENSE ./LICENSE",
+      "files": [
+        "../../README.md",
+        "../../LICENSE",
+        "./src/**/*.ts",
+        "./src/**/*.ejs",
+        "package.json",
+        "rollup.config.mjs",
+        "tsconfig.json"
+      ],
+      "output": [
+        "./dist/**",
+        "./LICENSE",
+        "./README.md"
+      ]
+    }
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "@rollup/plugin-commonjs": "^25.0.7",
+    "@rollup/plugin-json": "^6.1.0",
+    "@rollup/plugin-node-resolve": "^15.2.3",
+    "@types/ejs": "^3.1.5",
+    "@types/fs-extra": "^11.0.4",
+    "@types/js-yaml": "^4.0.5",
+    "@types/selenium-webdriver": "^4.1.22",
+    "@types/serve-handler": "^6.1.4",
+    "@typescript-eslint/eslint-plugin": "6.4.0",
+    "@typescript-eslint/parser": "6.4.0",
+    "cpx2": "^7.0.1",
+    "eslint": "8.47.0",
+    "path-exists-cli": "^2.0.0",
+    "rimraf": "^5.0.5",
+    "rollup": "^4.14.0",
+    "rollup-plugin-peer-deps-external": "^2.2.4",
+    "rollup-plugin-typescript2": "^0.36.0",
+    "tslib": "^2.6.2",
+    "typescript": "^5.4.4",
+    "vite": "^5.2.8",
+    "vite-plugin-dts": "^3.8.1",
+    "vitest": "^1.4.0",
+    "wireit": "^0.14.4"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "dependencies": {
+    "@schemastore/package": "^0.0.10",
+    "chalk": "^5.3.0",
+    "ejs": "^3.1.9",
+    "esbuild": "^0.20.2",
+    "fs-extra": "^11.2.0",
+    "get-port": "^7.1.0",
+    "html-webpack-plugin": "^5.6.0",
+    "package-up": "^5.0.0",
+    "puppeteer": "^22.6.2",
+    "selenium-webdriver": "^4.19.0",
+    "serve-handler": "^6.1.5",
+    "tunnelmole": "^2.2.14",
+    "webpack": "^5.91.0"
+  }
+}
