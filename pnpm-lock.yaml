@@ -14,9 +14,9 @@ importers:
       rimraf:
         specifier: ^5.0.5
         version: 5.0.5
-      testbuddy:
+      testeroni:
         specifier: workspace:*
-        version: link:packages/testbuddy
+        version: link:packages/testeroni
     devDependencies:
       '@types/fs-extra':
         specifier: ^11.0.4
@@ -31,7 +31,7 @@ importers:
         specifier: ^0.14.4
         version: 0.14.4
 
-  packages/testbuddy:
+  packages/testeroni:
     dependencies:
       '@schemastore/package':
         specifier: ^0.0.10

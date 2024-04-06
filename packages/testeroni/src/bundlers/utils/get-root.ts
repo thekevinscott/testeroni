@@ -1,4 +1,4 @@
-// Get the root of testbuddy
+// Get the root of testeroni
 // This will be used to resolve template directories
 
 import * as url from 'url';
