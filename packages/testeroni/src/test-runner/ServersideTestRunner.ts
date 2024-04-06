@@ -99,7 +99,13 @@ export class ServersideTestRunner {
    * Utility methods
    */
 
-  run(script: string, logErrors = true): Promise<Buffer> {
+  async run(script: string, {
+    logErrors = true,
+    returnType = 'string',
+  }: {
+    logErrors?: boolean;
+    returnType?: 'buffer' | 'string';
+  }): Promise<Buffer> {
 
     // if (script.trim().startsWith('async function()') === false) {
     //   throw new Error([
@@ -116,9 +122,13 @@ export class ServersideTestRunner {
         script,
       });
     };
-    return runNodeScript(contentFn, this.cwd, logErrors ? process.stderr : undefined).catch((err: unknown) => {
+    const result = await runNodeScript(contentFn, this.cwd, logErrors ? process.stderr : undefined).catch((err: unknown) => {
       throw new RunNodeScriptError(err, script);
     });
+    if (returnType === 'string') {
+      return result.toString();
+    }
+    return result;
   }
 
   /****
