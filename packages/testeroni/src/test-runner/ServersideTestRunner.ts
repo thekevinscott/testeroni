@@ -62,11 +62,19 @@ export class RunNodeScriptError extends Error {
 }
 
 type ContentFn = (outputDir: string) => Promise<string>;
-const runNodeScript = (contentFn: ContentFn, cwd: string, stderr?: typeof process.stderr): Promise<Buffer> => withTmpDir(async (tmpDir) => {
+const runNodeScript = (contentFn: ContentFn, {
+  cwd,
+  stderr,
+  module,
+}: {
+  module?: boolean;
+  cwd: string;
+  stderr?: typeof process.stderr;
+}): Promise<Buffer> => withTmpDir(async (tmpDir) => {
   const dataFile = path.join(tmpDir, getHashedName());
   const contents = await contentFn(dataFile);
 
-  await callExec(`node -e "${contents.replace(/"/g, '\\"')}"`, {
+  await callExec(`node ${module ? '--input-type=module' : ''} -e "${contents.replace(/"/g, '\\"')}"`, {
     cwd,
     env: {
     },
@@ -83,14 +91,18 @@ export class ServersideTestRunner {
   trackTime: boolean;
   verbose?: boolean;
   cwd: string;
+  module?: boolean;
 
   constructor({
     trackTime = false,
     cwd,
+    module,
   }: {
     cwd: string;
     trackTime?: boolean;
+    module?: boolean;
   }) {
+    this.module = module;
     this.cwd = cwd;
     this.trackTime = trackTime;
   }
@@ -112,7 +124,11 @@ export class ServersideTestRunner {
         script,
       });
     };
-    const result = await runNodeScript(contentFn, this.cwd, logErrors ? process.stderr : undefined).catch((err: unknown) => {
+    const result = await runNodeScript(contentFn, {
+      cwd: this.cwd,
+      stderr: logErrors ? process.stderr : undefined,
+      module: this.module,
+    }).catch((err: unknown) => {
       throw new RunNodeScriptError(err, script);
     });
     if (returnType === 'buffer') {
