@@ -3,13 +3,13 @@ import { build as esbuild, } from 'esbuild';
 import { Bundler, } from '../../utils/Bundler.js';
 import { removeIfExists, } from '../../utils/remove-if-exists.js';
 import { getTemplate as _getTemplate, } from '../../../common/get-template.js';
-import { pnpmInstall } from '../../../common/npm.js';
-import { writeFile } from '../../../common/fs.js';
-import { info } from '../../../common/logger.js';
-import { writeIndexJS } from '../../utils/write-index-js.js';
-import { writePackageJSON } from '../../utils/write-package-json.js';
-import { DIST_ROOT } from '../../utils/get-root.js';
-import { getHashedName } from '../../../common/get-hashed-name.js';
+import { pnpmInstall, } from '../../../common/npm.js';
+import { writeFile, } from '../../../common/fs.js';
+import { info, } from '../../../common/logger.js';
+import { writeIndexJS, } from '../../utils/write-index-js.js';
+import { writePackageJSON, } from '../../utils/write-package-json.js';
+import { DIST_ROOT, } from '../../utils/get-root.js';
+import { getHashedName, } from '../../../common/get-hashed-name.js';
 
 /***
  * Constants
@@ -80,7 +80,7 @@ export class EsbuildBundler extends Bundler {
           },
         }),
         writeIndexJS(getTemplate, indexJSEntryFile, dependencyKeys.map(name => {
-          return [name, EsbuildBundler.getHashedName(name)];
+          return [name, EsbuildBundler.getHashedName(name),];
         })),
         await writeFile(
           indexHTMLFile,

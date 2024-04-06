@@ -13,7 +13,7 @@ export const serverHeaders = [
       {
         "key": "Access-Control-Allow-Headers",
         "value": "Origin, X-Requested-With, Content-Type, Accept, Range",
-      }
-    ]
-  }
+      },
+    ],
+  },
 ];

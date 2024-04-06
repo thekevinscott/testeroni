@@ -1,4 +1,4 @@
-import chalk, { ChalkInstance } from 'chalk';
+import chalk, { ChalkInstance, } from 'chalk';
 
 export type LogLevel = 'info' | 'warn' | 'error' | 'verbose';
 
@@ -9,13 +9,13 @@ export const logLevels = [
   'verbose',
 ];
 
-export const isLogLevel = (logType: unknown): logType is LogLevel => typeof logType === 'string' && ['error', 'warn', 'info', 'verbose'].includes(logType);
+export const isLogLevel = (logType: unknown): logType is LogLevel => typeof logType === 'string' && ['error', 'warn', 'info', 'verbose',].includes(logType);
 
 export const DEFAULT_LOG_LEVEL: LogLevel = isLogLevel(process.env.logLevel) ? process.env.logLevel : 'info';
 
 const level: { level: LogLevel } = {
   level: DEFAULT_LOG_LEVEL,
-}
+};
 
 export const logTypes: Record<LogLevel, ChalkInstance> = {
   error: chalk.bold.red,

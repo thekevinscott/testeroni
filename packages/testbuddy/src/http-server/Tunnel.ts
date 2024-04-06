@@ -1,4 +1,4 @@
-import { tunnelmole } from 'tunnelmole';
+import { tunnelmole, } from 'tunnelmole';
 process.env.TUNNELMOLE_TELEMETRY = '0';
 process.env.TUNNELMOLE_QUIET_MODE = '1';
 

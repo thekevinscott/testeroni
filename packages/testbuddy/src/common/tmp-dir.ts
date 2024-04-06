@@ -1,8 +1,8 @@
 import path from 'path';
-import { rimraf } from 'rimraf';
-import { TMP_DIR } from './directories.js';
-import { getHashedName } from './get-hashed-name.js';
-import { exists, mkdirp } from './fs.js';
+import { rimraf, } from 'rimraf';
+import { TMP_DIR, } from './directories.js';
+import { getHashedName, } from './get-hashed-name.js';
+import { exists, mkdirp, } from './fs.js';
 
 export const makeTmpDir = async (root = TMP_DIR): Promise<string> => {
   const hashedName = getHashedName();
@@ -20,7 +20,7 @@ interface WithTmpDirOpts {
   removeTmpDir?: boolean;
 }
 type WithTmpDirFn<T> = (tmp: string) => Promise<T>;
-export async function withTmpDir<T>(callback: WithTmpDirFn<T>, { rootDir, removeTmpDir = true }: WithTmpDirOpts = {}) {
+export async function withTmpDir<T>(callback: WithTmpDirFn<T>, { rootDir, removeTmpDir = true, }: WithTmpDirOpts = {}) {
   const tmpDir = await makeTmpDir(rootDir);
 
   let response: T;

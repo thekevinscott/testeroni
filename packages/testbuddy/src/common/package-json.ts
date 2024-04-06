@@ -1,8 +1,8 @@
 import path from 'path';
-import { readFile } from './fs.js';
-import { JSONSchemaForNPMPackageJsonFiles } from '@schemastore/package';
-import { ROOT_DIR } from './directories.js';
-import { writeFile } from './fs.js';
+import { readFile, } from './fs.js';
+import { JSONSchemaForNPMPackageJsonFiles, } from '@schemastore/package';
+import { ROOT_DIR, } from './directories.js';
+import { writeFile, } from './fs.js';
 
 export type PackageJSONExport = string | {
   require: string;
@@ -15,7 +15,7 @@ const isPackageJSONExports = (exports: unknown): exports is {
   if (typeof exports !== 'object' || exports === null) {
     return false;
   };
-  return Object.entries(exports).reduce((isValid, [_exportName, exportValue]) => {
+  return Object.entries(exports).reduce((isValid, [_exportName, exportValue,]) => {
     return isValid === false ? false : typeof exportValue === 'string' || (typeof exportValue === 'object' && 'require' in exportValue && 'import' in exportValue);
   }, true);
 };
@@ -26,7 +26,7 @@ export const getPackageJSON = async (folder: string): Promise<JSONSchema> => {
 };
 
 export const getPackageJSONExports = async (modelFolder: string): Promise<Array<[string, PackageJSONExport]>> => {
-  const { exports } = await getPackageJSON(modelFolder);
+  const { exports, } = await getPackageJSON(modelFolder);
   if (!isPackageJSONExports(exports)) {
     throw new Error(`Invalid exports field in package json for ${modelFolder}}: ${JSON.stringify(exports)}`);
   }
@@ -53,7 +53,7 @@ export const getPackageJSONPath = (file: string) => {
     return file;
   }
   return path.resolve(file, 'package.json');
-}
+};
 
 export const writePackageJSON = async (file: string, contents: unknown) => {
   const stringifiedContents = `${JSON.stringify(contents, null, 2)}\n`;
@@ -62,12 +62,12 @@ export const writePackageJSON = async (file: string, contents: unknown) => {
 
 export const getPackageJSONValue = (packageJSON: JSONSchema, depKey: string) => {
   return depKey.split('.').reduce((json, key) => json?.[key], packageJSON);
-}
+};
 
 type Value = JSONSchema[keyof JSONSchema];
 export const updatePackageJSONForKey = (packageJSON: JSONSchema, key: string, val: Value): JSONSchema => {
   return getObj(packageJSON, key.split('.'), val);
-}
+};
 
 function getObj(obj: JSONSchema, parts: string[], val: Value): JSONSchema {
   if (parts.length === 1) {
@@ -76,11 +76,11 @@ function getObj(obj: JSONSchema, parts: string[], val: Value): JSONSchema {
       [parts[0]]: {
         ...obj[parts[0]],
         ...val,
-      }
+      },
     };
   }
   return {
     ...obj,
     [parts[0]]: getObj(obj[parts[0]], parts.slice(1), val),
-  }
+  };
 }

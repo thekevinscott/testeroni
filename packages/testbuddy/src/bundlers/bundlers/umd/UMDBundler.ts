@@ -3,7 +3,7 @@ import { Bundler, } from '../../utils/Bundler.js';
 import { writeFile, copyFile, } from '../../../common/fs.js';
 import { info, } from '../../../common/logger.js';
 import { getTemplate, } from '../../../common/get-template.js';
-import { DIST_ROOT } from '../../utils/get-root.js';
+import { DIST_ROOT, } from '../../utils/get-root.js';
 
 /***
  * Constants

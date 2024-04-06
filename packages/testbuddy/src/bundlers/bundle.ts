@@ -1,4 +1,4 @@
-import { info } from '../common/logger.js';
+import { info, } from '../common/logger.js';
 import { EsbuildBundler, } from './bundlers/esbuild/EsbuildBundler.js';
 import { NodeBundler, } from './bundlers/node/NodeBundler.js';
 import { UMDBundler, } from './bundlers/umd/UMDBundler.js';
@@ -25,7 +25,7 @@ type BundleOptions<N extends BundlerName> = Parameters<NameToBundlerMap[N]['bund
 
 export async function bundle<N extends BundlerName>(name: N, outDir: string, bundleOptions: BundleOptions<N>): Promise<Bundler> {
   info(`Bundling ${name}`);
-  const bundler = getBundler(name, outDir) as NameToBundlerMap[N];
+  const bundler = getBundler(name, outDir) ;
   const start = performance.now();
   await bundler.bundle(bundleOptions as any);
   const duration = ((performance.now() - start) / 1000).toFixed(2);
