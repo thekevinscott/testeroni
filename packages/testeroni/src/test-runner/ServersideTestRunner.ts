@@ -111,13 +111,13 @@ export class ServersideTestRunner {
    * Utility methods
    */
 
-  async run<R>(script: string, {
+  async run<R extends 'buffer' | 'string'>(script: string, {
     logErrors = true,
-    returnType,
+    returnType = 'string' as R,
   }: {
     logErrors?: boolean;
     returnType?: R;
-  }): Promise<R extends 'buffer' ? Buffer : string> {
+  } = {}): Promise<R extends 'buffer' ? Buffer : string> {
     const contentFn = (outputFile: string) => {
       return getTemplate(path.resolve(TEMPLATES_DIR, 'node-script.js.ejs'), {
         outputFile,

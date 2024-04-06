@@ -5,14 +5,14 @@ import { UMDBundler, } from './bundlers/umd/UMDBundler.js';
 import { WebpackBundler, } from './bundlers/webpack/WebpackBundler.js';
 import type { Bundler, } from './utils/Bundler.js';
 
-const BUNDLERS = {
+export const BUNDLERS = {
   esbuild: EsbuildBundler,
   webpack: WebpackBundler,
   node: NodeBundler,
   umd: UMDBundler,
 } as const;
-type BundlerName = keyof typeof BUNDLERS;
-type NameToBundlerMap = {
+export type BundlerName = keyof typeof BUNDLERS;
+export type NameToBundlerMap = {
   [K in BundlerName]: InstanceType<typeof BUNDLERS[K]>;
 };
 
@@ -21,11 +21,11 @@ export function getBundler<N extends BundlerName>(name: N, outDir: string): Name
 };
 
 
-type BundleOptions<N extends BundlerName> = Parameters<NameToBundlerMap[N]['bundle']>[0];
+export type BundleOptions<N extends BundlerName> = Parameters<NameToBundlerMap[N]['bundle']>[0];
 
 export async function bundle<N extends BundlerName>(name: N, outDir: string, bundleOptions: BundleOptions<N>): Promise<Bundler> {
   info(`Bundling ${name}`);
-  const bundler = getBundler(name, outDir) ;
+  const bundler = getBundler(name, outDir);
   const start = performance.now();
   await bundler.bundle(bundleOptions as any);
   const duration = ((performance.now() - start) / 1000).toFixed(2);
