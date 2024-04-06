@@ -28,7 +28,7 @@
       "command": "eslint -c .eslintrc.cjs src --ext .ts"
     },
     "build:check": {
-      "command": "path-exists ./dist/index.js && path-exists ./dist/index.js.map && path-exists ./dist/index.d.ts "
+      "command": "path-exists ./dist/index.js && path-exists ./dist/index.d.ts "
     },
     "build:esm": {
       "command": "tsc"
@@ -78,6 +78,12 @@
     "vite": "^5.2.8",
     "vite-plugin-dts": "^3.8.1",
     "vitest": "^1.4.0",
+    "@rollup/plugin-typescript": "^11.1.6",
+    "@types/jest": "^29.5.12",
+    "eslint-config-prettier": "^9.1.0",
+    "rollup-plugin-dts": "^6.1.0",
+    "rollup-plugin-esbuild": "^6.1.1",
+    "rollup-plugin-string": "^3.0.0",
     "wireit": "^0.14.4"
   },
   "engines": {

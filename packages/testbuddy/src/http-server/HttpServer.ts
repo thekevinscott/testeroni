@@ -1,9 +1,9 @@
-import { Server as HTTPServer, createServer } from 'http';
+import { Server as HTTPServer, createServer, } from 'http';
 import handler from 'serve-handler';
-import { Tunnel } from './Tunnel.js';
-import { serverHeaders } from './serverHeaders.js';
-import { exists } from '../common/fs.js';
-import { info } from '../common/logger.js';
+import { Tunnel, } from './Tunnel.js';
+import { serverHeaders, } from './serverHeaders.js';
+import { exists, } from '../common/fs.js';
+import { info, } from '../common/logger.js';
 
 export const ERROR_NO_ADDRESS = 'No address found for server';
 export const ERROR_STRING_ADDRESS = 'Address is of type string for server';
@@ -45,7 +45,7 @@ export class HttpServer {
   // url?: string;
   useTunnel: boolean;
 
-  constructor({ name, port, dist, useTunnel }: { name?: string; port?: number, dist: string, useTunnel: boolean }) {
+  constructor({ name, port, dist, useTunnel, }: { name?: string; port?: number, dist: string, useTunnel: boolean }) {
     this.name = name;
     this.port = port;
     this.dist = dist;
@@ -82,7 +82,7 @@ export class HttpServer {
       throw new Error('No URL was created');
     }
     return url;
-  }
+  };
 
   get url() {
     if (this.useTunnel) {
@@ -111,10 +111,10 @@ export class HttpServer {
         }
         this.tunnel.close();
       }
-    }
+    };
     await Promise.all([
       closeHttpServer(server),
       closeTunnel(),
     ]);
-  }
+  };
 }

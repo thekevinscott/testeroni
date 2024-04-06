@@ -2,10 +2,10 @@ import path from 'path';
 import { Bundler, } from '../../utils/Bundler.js';
 import { removeIfExists, } from '../../utils/remove-if-exists.js';
 import { getTemplate as _getTemplate, } from '../../../common/get-template.js';
-import { pnpmInstall } from '../../../common/npm.js';
-import { info } from '../../../common/logger.js';
-import { writePackageJSON } from '../../utils/write-package-json.js';
-import { DIST_ROOT } from '../../utils/get-root.js';
+import { pnpmInstall, } from '../../../common/npm.js';
+import { info, } from '../../../common/logger.js';
+import { writePackageJSON, } from '../../utils/write-package-json.js';
+import { DIST_ROOT, } from '../../utils/get-root.js';
 
 /***
  * Constants
@@ -51,7 +51,7 @@ export class NodeBundler extends Bundler {
         dependencies,
         devDependencies: {
           ...devDependencies,
-          "tslib": "2.6.1"
+          "tslib": "2.6.1",
         },
       });
 

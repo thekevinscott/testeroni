@@ -7,11 +7,11 @@ import { info, verbose, } from '../../../common/logger.js';
 import { getTemplate as _getTemplate, } from '../../../common/get-template.js';
 import { copyFile, } from '../../../common/fs.js';
 import { pnpmInstall, } from '../../../common/npm.js';
-import { writeIndexJS } from '../../utils/write-index-js.js';
-import { writePackageJSON } from '../../utils/write-package-json.js';
-import { DIST_ROOT } from '../../utils/get-root.js';
-import { getHashedName } from '../../../common/get-hashed-name.js';
-import { existsSync, readFileSync } from 'fs-extra';
+import { writeIndexJS, } from '../../utils/write-index-js.js';
+import { writePackageJSON, } from '../../utils/write-package-json.js';
+import { DIST_ROOT, } from '../../utils/get-root.js';
+import { getHashedName, } from '../../../common/get-hashed-name.js';
+import { existsSync, readFileSync, } from 'fs-extra';
 
 /***
  * Constants
@@ -87,11 +87,11 @@ export class WebpackBundler extends Bundler {
             "webpack": "5.88.2",
             "@babel/plugin-transform-modules-commonjs": "latest",
             "@babel/preset-env": "latest",
-            "@babel/preset-typescript": "latest"
+            "@babel/preset-typescript": "latest",
           },
         }),
         writeIndexJS(getTemplate, indexJSEntryFile, dependencyKeys.map(name => {
-          return [name, WebpackBundler.getHashedName(name)];
+          return [name, WebpackBundler.getHashedName(name),];
         })),
         copyFile(
           path.resolve(WEBPACK_TEMPLATES_DIR, 'index.html.ejs'),

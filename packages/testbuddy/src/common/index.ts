@@ -1,4 +1,4 @@
-import { exec } from 'child_process';
+import { exec, } from 'child_process';
 
 export const runPNPMScript = (script: string, ...filter: string[]): Promise<void> => new Promise((resolve, reject) => {
   const command = [

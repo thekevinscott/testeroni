@@ -1,4 +1,4 @@
-export const EMPTY_ITEMS_ERROR = new Error('Must provide at least one item to pluralize')
+export const EMPTY_ITEMS_ERROR = new Error('Must provide at least one item to pluralize');
 export const DEFAULT_SEPARATOR = 'or';
 export const pluralize = (items: string[], separator = DEFAULT_SEPARATOR): string => {
   if (items.length === 0) {

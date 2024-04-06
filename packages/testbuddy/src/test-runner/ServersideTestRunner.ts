@@ -1,20 +1,20 @@
-import { timeit } from "./utils/timeit.js";
-import { exec, ExecOptions } from 'child_process';
+import { timeit, } from "./utils/timeit.js";
+import { exec, ExecOptions, } from 'child_process';
 import path from 'path';
 import fsExtra from "fs-extra";
 import * as url from 'url';
-import { withTmpDir } from "../common/tmp-dir.js";
-import { getHashedName } from "../common/get-hashed-name.js";
-import { info } from "../common/logger.js";
-import { exists } from "../common/fs.js";
-import { getTemplate } from "../common/get-template.js";
+import { withTmpDir, } from "../common/tmp-dir.js";
+import { getHashedName, } from "../common/get-hashed-name.js";
+import { info, } from "../common/logger.js";
+import { exists, } from "../common/fs.js";
+import { getTemplate, } from "../common/get-template.js";
 
 const __dirname = url.fileURLToPath(new URL('.', import.meta.url));
 const TEMPLATES_DIR = path.resolve(__dirname, './_templates');
 
 type Bundle = () => Promise<void>;
 
-const { readFile } = fsExtra;
+const { readFile, } = fsExtra;
 
 type StdOut = (chunk: string) => void;
 
@@ -56,7 +56,7 @@ export class RunNodeScriptError extends Error {
       Error.captureStackTrace(this, this.constructor);
       // this.message = `${script}\n${this.message}`;
     } else {
-      throw new Error('error not an instance of Error within RunNodeScriptError')
+      throw new Error('error not an instance of Error within RunNodeScriptError');
     }
   }
 }

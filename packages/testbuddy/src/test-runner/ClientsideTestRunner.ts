@@ -1,8 +1,8 @@
 import { Page, Browser, BrowserContext, launch, } from 'puppeteer';
-import { isIgnoredMessage } from './utils/message.js';
-import { timeit } from './utils/timeit.js';
-import { catchFailures } from './utils/catchFailures.js';
-import { HttpServer } from '../http-server/HttpServer.js';
+import { isIgnoredMessage, } from './utils/message.js';
+import { timeit, } from './utils/timeit.js';
+import { catchFailures, } from './utils/catchFailures.js';
+import { HttpServer, } from '../http-server/HttpServer.js';
 
 type Bundle = () => Promise<void>;
 
@@ -23,7 +23,7 @@ const getURL = (server?: HttpServer) => {
     throw new Error('Server URL is not defined');
   }
   return url;
-}
+};
 
 
 const mockCdn: MockCDN = (server, packageName, pathToModel) => {
@@ -148,7 +148,7 @@ export class ClientsideTestRunner {
    */
 
   private _getLogMessage(msg: string) {
-    return [msg, this._name].filter(Boolean).join(' | ');
+    return [msg, this._name,].filter(Boolean).join(' | ');
   }
 
   private _warn(msg: string) {
@@ -172,7 +172,7 @@ export class ClientsideTestRunner {
    * Start and stop methods
    */
 
-  async startServers({ dist: _dist, name }: { dist?: string; name?: string } = {}): Promise<void> {
+  async startServers({ dist: _dist, name, }: { dist?: string; name?: string } = {}): Promise<void> {
     const dist = _dist || this.dist;
     if (!dist) {
       throw new Error('No dist was supplied, either in the constructor to ClientsideTestRunner or as an argument to startServers. Please explicitly provide a dist argument');
@@ -208,7 +208,7 @@ export class ClientsideTestRunner {
       } else {
         await server.close();
       }
-    }
+    };
     await Promise.all([
       stopServer(this.server),
       stopServer(this.fixturesServer),
@@ -239,7 +239,7 @@ export class ClientsideTestRunner {
           console.log(`[PAGE][${type}] ${text}`);
         }
       })
-        .on('pageerror', ({ message }) => console.log(message))
+        .on('pageerror', ({ message, }) => console.log(message))
         .on('response', response => {
           const status = response.status();
           if (`${status}` !== `${200}`) {
@@ -248,7 +248,7 @@ export class ClientsideTestRunner {
         })
         .on('requestfailed', request => {
           console.log(`[PAGE][requestfailed][${request.failure()?.errorText}] ${request.url()}`);
-        })
+        });
     }
   }
 
@@ -264,7 +264,7 @@ export class ClientsideTestRunner {
           if (!modelPath?.length) {
             throw new Error(`URL ${url} is not a model`);
           }
-          const [model, restOfModelPath] = modelPath;
+          const [model, restOfModelPath,] = modelPath;
           const [_, ...pathToModel] = restOfModelPath.split('/');
           const redirectedURL = mockCdn(this.fixturesServer, model, pathToModel.join('/'));
           // console.log(`mock request ${url} to ${redirectedURL}`);

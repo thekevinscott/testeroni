@@ -1,5 +1,5 @@
-import { spawn } from 'child_process';
-import { getLogLevel, verbose } from './logger.js';
+import { spawn, } from 'child_process';
+import { getLogLevel, verbose, } from './logger.js';
 
 const parseCommand = (_command: string | string[]) => {
   const command = Array.isArray(_command) ? _command : _command.split(' ');
@@ -17,7 +17,7 @@ export const runPackageCommand = (
   const child = spawn(runner, parseCommand(command), {
     shell: true,
     cwd,
-    stdio: "inherit"
+    stdio: "inherit",
   });
 
   child.on('error', reject);
@@ -61,7 +61,7 @@ export const pnpmInstall = async (cwd: string, _opts = {}) => {
     'pnpm',
     'install',
     '--ignore-scripts',
-    '--fix-lockfile'
+    '--fix-lockfile',
     // isSilent ? '--silent' : '',
     // '--no-fund',
     // '--no-audit',

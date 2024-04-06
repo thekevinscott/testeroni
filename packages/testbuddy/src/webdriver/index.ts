@@ -1,7 +1,7 @@
 import path from 'path';
 
-import webdriver, { WebDriver, ThenableWebDriver, Builder, logging } from 'selenium-webdriver';
-import { readFile, writeFile } from '../common/fs.js';
+import webdriver, { WebDriver, ThenableWebDriver, Builder, logging, } from 'selenium-webdriver';
+import { readFile, writeFile, } from '../common/fs.js';
 
 /****
  * Types
@@ -103,7 +103,7 @@ export const printLogs = async (driver: WebDriver, capabilities: BrowserOption, 
   if (capabilities?.browserName === 'firefox') {
     if (capabilities?.os === 'windows') {
       if (verbose) {
-        console.log('Not printing logs, because it is Windows Firefox')
+        console.log('Not printing logs, because it is Windows Firefox');
       }
       // There is a bug with Firefox not supporting the get logs method on Windows
       // https://stackoverflow.com/questions/59192232/selenium-trying-to-get-firefox-console-logs-results-in-webdrivererror-http-me
@@ -112,7 +112,7 @@ export const printLogs = async (driver: WebDriver, capabilities: BrowserOption, 
     }
     if (capabilities?.os === 'OS X') {
       if (verbose) {
-        console.log('Not printing logs, because it is OS X Firefox')
+        console.log('Not printing logs, because it is OS X Firefox');
       }
       // Firefox does not seem to support logging on OS X either
       // https://github.com/mozilla/geckodriver/issues/1698
@@ -123,7 +123,7 @@ export const printLogs = async (driver: WebDriver, capabilities: BrowserOption, 
 
   if (capabilities?.browserName === 'safari') {
     if (verbose) {
-      console.log('Not printing logs, because it is Safari')
+      console.log('Not printing logs, because it is Safari');
     }
     // It looks like Safari also does not support logging
     // console.log('** Safari does not support logging')
@@ -143,7 +143,7 @@ export const printLogs = async (driver: WebDriver, capabilities: BrowserOption, 
       console.log('Skipping log');
     }
   }
-}
+};
 
 export const takeScreenshot = async (driver: ThenableWebDriver, target: string) => {
   const data = await driver.takeScreenshot();
