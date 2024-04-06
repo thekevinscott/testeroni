@@ -1,4 +1,5 @@
 import path from 'path';
+import * as url from 'url';
 
 import webdriver, { WebDriver, ThenableWebDriver, Builder, logging, } from 'selenium-webdriver';
 import { readFile, writeFile, } from '../common/fs.js';
@@ -23,6 +24,7 @@ export type FilterBrowserOption = (option: BrowserOption) => boolean;
  * Constants
  */
 
+const __dirname = url.fileURLToPath(new URL('.', import.meta.url));
 const browserOptions: Array<BrowserOption> = JSON.parse(await readFile(path.resolve(__dirname, '../browserStackOptions.json')));
 // const mobileBrowserOptions: Array<BrowserOption> = JSON.parse(await readFile(path.resolve(__dirname, './browserStackMobileOptions.json'))).map((option: BrowserOption[]) => ({
 //   "real_mobile": "true",
