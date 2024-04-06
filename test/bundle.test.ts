@@ -594,7 +594,49 @@ describe('bundle', () => {
         ...keys.map(key => `const ${key} = require('${key}');`),
         `return JSON.stringify([${keys.join(', ')}]);`,
       ].join('\n');
-      const buffer = await runner.run(contents);
+      const result = await runner.run(contents);
+      expect(result).toBe(JSON.stringify(keys.map(key => `c-${key}`)));
+    });
+
+    test('can run a script against the node app and get back a buffer', async () => {
+      const dependencies = {
+        'foo': '0.0.1',
+        'bar': '0.0.2',
+      };
+      const devDependencies = {
+        'baz': '0.0.3',
+        'qux': '0.0.4',
+      };
+      await Promise.all(Object.entries({
+        ...dependencies,
+        ...devDependencies,
+      }).map(([name, version]) => {
+        return makeFakeLocalPackage(name, version, 'commonjs');
+      }));
+      await bundle('node', tmpDir, {
+        module: true,
+        skipNpmInstall: true,
+        keepWorkingFiles: true,
+        dependencies,
+        devDependencies,
+      });
+
+      const runner = new ServersideTestRunner({
+        cwd: tmpDir,
+      });
+
+      const keys = Object.keys({
+        ...dependencies,
+        ...devDependencies,
+      });
+
+      const contents = [
+        ...keys.map(key => `const ${key} = require('${key}');`),
+        `return JSON.stringify([${keys.join(', ')}]);`,
+      ].join('\n');
+      const buffer = await runner.run(contents, {
+        returnType: 'buffer',
+      });
       expect(buffer.toString()).toBe(JSON.stringify(keys.map(key => `c-${key}`)));
     });
   });

@@ -99,23 +99,13 @@ export class ServersideTestRunner {
    * Utility methods
    */
 
-  async run(script: string, {
+  async run<R>(script: string, {
     logErrors = true,
-    returnType = 'string',
+    returnType,
   }: {
     logErrors?: boolean;
-    returnType?: 'buffer' | 'string';
-  }): Promise<Buffer> {
-
-    // if (script.trim().startsWith('async function()') === false) {
-    //   throw new Error([
-    //     'You must ensure your script is wrapped inside an async function, like:',
-    //     '',
-    //     'async function() {',
-    //     '  // your code',
-    //     '}',
-    //   ].join('\n'));
-    // }
+    returnType?: R;
+  }): Promise<R extends 'buffer' ? Buffer : string> {
     const contentFn = (outputFile: string) => {
       return getTemplate(path.resolve(TEMPLATES_DIR, 'node-script.js.ejs'), {
         outputFile,
@@ -125,10 +115,10 @@ export class ServersideTestRunner {
     const result = await runNodeScript(contentFn, this.cwd, logErrors ? process.stderr : undefined).catch((err: unknown) => {
       throw new RunNodeScriptError(err, script);
     });
-    if (returnType === 'string') {
-      return result.toString();
+    if (returnType === 'buffer') {
+      return result as R extends 'buffer' ? Buffer : string;
     }
-    return result;
+    return result.toString() as R extends 'buffer' ? Buffer : string;
   }
 
   /****
