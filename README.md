@@ -1,8 +1,8 @@
-# Test Buddy
+# Testeroni
 
 An integration testing harness developed for my my own stuff. Use it, don't use it &mdash; either way, it's a bash.
 
-![Test Buddy Logo](./assets/testeroni.webp)
+![Testeroni Logo](./assets/testeroni.webp)
 
 This library is two things:
 
@@ -19,14 +19,14 @@ This library assumes the use of `vitest`, although maybe `jest` works too, I don
 
 ## Usage
 
-Test Buddy offers bundlers for the following strategies:
+Testeroni offers bundlers for the following strategies:
 
 - `esbuild`
 - `webpack`
 - `UMD`
 - `Node`
 
-Test Buddy also offers the ability to test in the following environments:
+Testeroni also offers the ability to test in the following environments:
 
 - Clientside
   - via a browser, with Puppeteer
@@ -35,7 +35,7 @@ Test Buddy also offers the ability to test in the following environments:
 
 ### Bundling
 
-Test Buddy offers the following four bundling strategies:
+Testeroni offers the following four bundling strategies:
 
 - `esbuild`
 - `webpack`
@@ -44,9 +44,9 @@ Test Buddy offers the following four bundling strategies:
 
 Bundling can be done in one of three ways:
 
-- By calling `Test Buddy` from the command line, with `npm run Test Buddy bundle umd`
-- By calling `Test Buddy` from a script, i.e., `"bundle_for_umd": "Test Buddy bundle umd"`
-- By importing `Test Buddy` in your Javascript, with `import { bundle } from 'Test Buddy'`
+- By calling `Testeroni` from the command line, with `npm run Testeroni bundle umd`
+- By calling `Testeroni` from a script, i.e., `"bundle_for_umd": "Testeroni bundle umd"`
+- By importing `Testeroni` in your Javascript, with `import { bundle } from 'Testeroni'`
 
 We'll run through the four strategies and provide examples for command line and Javascript options (command line and script are identical options).
 
@@ -55,13 +55,13 @@ We'll run through the four strategies and provide examples for command line and 
 Bundle via the command line with:
 
 ```bash
-npm run Test Buddy bundle esbuild /path/to/output
+npm run Testeroni bundle esbuild /path/to/output
 ```
 
 or:
 
 ```javascript
-import { bundle } from 'Test Buddy';
+import { bundle } from 'Testeroni';
 
 bundle('esbuild', '/path/to/output');
 ```
@@ -77,13 +77,13 @@ The dependencies will be installed, and also will be made available on the page 
 The bundler comes with three EJS templates, which can be overriden:
 
 ```bash
-npm run Test Buddy bundle esbuild /path/to/output --index.html ./index.html.ejs --index.js ./index.js.ejs --package.json ./package.json.ejs
+npm run Testeroni bundle esbuild /path/to/output --index.html ./index.html.ejs --index.js ./index.js.ejs --package.json ./package.json.ejs
 ```
 
 or:
 
 ```javascript
-import { bundle } from 'Test Buddy';
+import { bundle } from 'Testeroni';
 
 bundle('esbuild', '/path/to/output', {
   'index.html': './index.html.ejs',
@@ -107,7 +107,7 @@ Webpack is identical to `esbuild`. Same options and all.
 To write a clientside test suite that leverages puppeteer:
 
 ```javascript
-import { ClientsideTestRunner } from 'Test Buddy';
+import { ClientsideTestRunner } from 'Testeroni';
 describe('Image Format Integration Tests', () => {
   const testRunner = new ClientsideTestRunner({
     mock: true,
