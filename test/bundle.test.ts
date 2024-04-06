@@ -9,8 +9,8 @@ import {
   output,
   HttpServer,
   ServersideTestRunner,
-} from 'testbuddy';
-import { makeTmpDir } from '../packages/testbuddy/src/common/tmp-dir.js';
+} from 'testeroni';
+import { makeTmpDir } from '../packages/testeroni/src/common/tmp-dir.js';
 import path from 'path';
 import { existsSync, mkdir, readFile, writeFile, } from 'fs-extra';
 import { Browser, chromium } from 'playwright'

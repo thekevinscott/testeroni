@@ -2,7 +2,7 @@
 
 An integration testing harness developed for my my own stuff. Use it, don't use it &mdash; either way, it's a bash.
 
-![Test Buddy Logo](./assets/testbuddy.webp)
+![Test Buddy Logo](./assets/testeroni.webp)
 
 This library is two things:
 
@@ -12,7 +12,7 @@ This library is two things:
 ## Install
 
 ```bash
-npm install testbuddy
+npm install testeroni
 ```
 
 This library assumes the use of `vitest`, although maybe `jest` works too, I don't know.

@@ -35,11 +35,11 @@ jobs:
   #           ${{ runner.os }}-pnpm-store-
 
   #     - name: Install dependencies
-  #       working-directory: ./packages/testbuddy
+  #       working-directory: ./packages/testeroni
   #       run: pnpm install
 
   #     - name: 'Lint'
-  #       working-directory: ./packages/testbuddy
+  #       working-directory: ./packages/testeroni
   #       run: 'pnpm lint'
 
   unit-test:
@@ -75,18 +75,18 @@ jobs:
             ${{ runner.os }}-pnpm-store-
 
       - name: Install dependencies
-        working-directory: ./packages/testbuddy
+        working-directory: ./packages/testeroni
         run: pnpm install
 
       - name: 'Test'
-        working-directory: ./packages/testbuddy
+        working-directory: ./packages/testeroni
         run: 'pnpm test'
 
       - name: Upload coverage reports to Codecov
         uses: codecov/codecov-action@v4.0.1
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
-          slug: thekevinscott/testbuddyionist
+          slug: thekevinscott/testeroniionist
 
   build:
     name: 'Build'
@@ -121,13 +121,13 @@ jobs:
             ${{ runner.os }}-pnpm-store-
 
       - name: Install dependencies
-        working-directory: ./packages/testbuddy
+        working-directory: ./packages/testeroni
         run: pnpm install
 
       - name: 'Build'
-        working-directory: ./packages/testbuddy
+        working-directory: ./packages/testeroni
         run: 'pnpm build'
 
       - name: 'Check build output'
-        working-directory: ./packages/testbuddy
+        working-directory: ./packages/testeroni
         run: 'pnpm build:check'
