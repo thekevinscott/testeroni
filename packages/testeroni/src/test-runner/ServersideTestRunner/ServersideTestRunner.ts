@@ -1,13 +1,14 @@
-import { timeit, } from "./utils/timeit.js";
+import { timeit, } from "../utils/timeit.js";
 import { exec, ExecOptions, } from 'child_process';
 import path from 'path';
 import fsExtra from "fs-extra";
 import * as url from 'url';
-import { withTmpDir, } from "../common/tmp-dir.js";
-import { getHashedName, } from "../common/get-hashed-name.js";
-import { info, } from "../common/logger.js";
-import { exists, } from "../common/fs.js";
-import { getTemplate, } from "../common/get-template.js";
+import { withTmpDir, } from "../../common/tmp-dir.js";
+import { getHashedName, } from "../../common/get-hashed-name.js";
+import { info, } from "../../common/logger.js";
+import { exists, } from "../../common/fs.js";
+import { getTemplate, } from "../../common/get-template.js";
+import { refactorImports } from "./refactor-imports.js";
 
 const __dirname = url.fileURLToPath(new URL('.', import.meta.url));
 const TEMPLATES_DIR = path.resolve(__dirname, './_templates');
@@ -74,7 +75,7 @@ const runNodeScript = (contentFn: ContentFn, {
   const dataFile = path.join(tmpDir, getHashedName());
   const contents = await contentFn(dataFile);
 
-  await callExec(`node ${module ? '--input-type=module' : ''} -e "${contents.replace(/"/g, '\\"')}"`, {
+  await callExec(`node ${module ? '--input-type=module' : ''} -e "${refactorImports(contents.replace(/"/g, '\\"'))}"`, {
     cwd,
     env: {
     },
