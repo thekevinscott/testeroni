@@ -1,7 +1,7 @@
 import { describe, test, expect } from 'vitest';
 import { refactorImports } from './refactor-imports.js';
 describe('refactor-imports', () => {
-  test.only('it hoists imports to top', () => {
+  test('it hoists imports to top', () => {
     expect(refactorImports(`
     (async () => {
       const script = async function() {
