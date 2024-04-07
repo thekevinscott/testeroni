@@ -1,2 +1,2 @@
 export { ClientsideTestRunner, } from './ClientsideTestRunner.js';
-export { ServersideTestRunner, } from './ServersideTestRunner.js';
+export { ServersideTestRunner, } from './ServersideTestRunner/index.js';

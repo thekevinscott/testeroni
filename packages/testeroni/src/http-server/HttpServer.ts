@@ -43,9 +43,9 @@ export class HttpServer {
   private httpServer?: HTTPServer;
   private tunnel?: Tunnel;
   // url?: string;
-  useTunnel: boolean;
+  useTunnel?: boolean;
 
-  constructor({ name, port, dist, useTunnel, }: { name?: string; port?: number, dist: string, useTunnel: boolean }) {
+  constructor({ name, port, dist, useTunnel, }: { name?: string; port?: number, dist: string, useTunnel?: boolean }) {
     this.name = name;
     this.port = port;
     this.dist = dist;

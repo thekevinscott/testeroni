@@ -7,7 +7,7 @@ const exec = util.promisify(_exec);
 const packageJSONPath = import.meta.url.replace(/\/[^/]+$/, '/../../packages/testeroni/package.json');
 const { name, version, description, } = JSON.parse(readFileSync(new URL(packageJSONPath), 'utf-8')) as { name: string, version: string, description: string, };
 
-describe.only('cli', () => {
+describe('cli', () => {
   test('the cli works', async () => {
     const { stdout: result } = await exec('pnpm testeroni --version');
     expect(result.trim()).toBe(version.trim());
