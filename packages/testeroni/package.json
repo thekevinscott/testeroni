@@ -2,7 +2,7 @@
   "name": "testeroni",
   "type": "module",
   "description": "Tools for performing integration tests across a variety of environments for Javascript libraries.",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "author": "Kevin Scott",
   "bin": {
     "testeroni": "./dist/bin/cli.js"
@@ -20,6 +20,7 @@
     ".": "./dist/index.js"
   },
   "scripts": {
+    "postinstall": "pnpm exec playwright install",
     "lint": "wireit",
     "test": "vitest",
     "copy:templates": "wireit",
@@ -103,6 +104,7 @@
     "get-port": "^7.1.0",
     "html-webpack-plugin": "^5.6.0",
     "package-up": "^5.0.0",
+    "playwright": "^1.43.0",
     "puppeteer": "^22.6.2",
     "selenium-webdriver": "^4.19.0",
     "serve-handler": "^6.1.5",
