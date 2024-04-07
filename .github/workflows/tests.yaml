@@ -123,9 +123,6 @@ jobs:
       - name: Install dependencies
         run: pnpm install
 
-      - name: Update playwright
-        run: pnpm exec playwright install 
-
       - name: 'Test'
         run: 'pnpm test'
 

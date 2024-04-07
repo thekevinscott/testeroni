@@ -60,6 +60,9 @@ importers:
       package-up:
         specifier: ^5.0.0
         version: 5.0.0
+      playwright:
+        specifier: ^1.43.0
+        version: 1.43.0
       puppeteer:
         specifier: ^22.6.2
         version: 22.6.2(typescript@5.4.4)
@@ -2607,7 +2610,6 @@ packages:
     engines: {node: ^8.16.0 || ^10.6.0 || >=11.0.0}
     os: [darwin]
     requiresBuild: true
-    dev: true
     optional: true
 
   /fsevents@2.3.3:
@@ -3881,7 +3883,7 @@ packages:
   /playwright-core@1.43.0:
     resolution: {integrity: sha512-iWFjyBUH97+pUFiyTqSLd8cDMMOS0r2ZYz2qEsPjH8/bX++sbIJT35MSwKnp1r/OQBAqC5XO99xFbJ9XClhf4w==}
     engines: {node: '>=16'}
-    dev: true
+    hasBin: true
 
   /playwright@1.43.0:
     resolution: {integrity: sha512-SiOKHbVjTSf6wHuGCbqrEyzlm6qvXcv7mENP+OZon1I07brfZLGdfWV0l/efAzVx7TF3Z45ov1gPEkku9q25YQ==}
@@ -3890,7 +3892,6 @@ packages:
       playwright-core: 1.43.0
     optionalDependencies:
       fsevents: 2.3.2
-    dev: true
 
   /possible-typed-array-names@1.0.0:
     resolution: {integrity: sha512-d7Uw+eZoloe0EHDIYoe+bQ5WXnGMOpmiZFTuMWCwpjzzkL2nTjcKiAk4hh8TjnGye2TwWOk3UXucZ+3rbmBa8Q==}

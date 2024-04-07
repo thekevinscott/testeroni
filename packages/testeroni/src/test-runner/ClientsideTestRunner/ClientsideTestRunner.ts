@@ -1,8 +1,13 @@
-import { Page, Browser, BrowserContext, launch, } from 'puppeteer';
-import { isIgnoredMessage, } from './utils/message.js';
-import { timeit, } from './utils/timeit.js';
-import { catchFailures, } from './utils/catchFailures.js';
-import { HttpServer, } from '../http-server/HttpServer.js';
+import { BrowserContext as PuppeteerBrowserContext, } from 'puppeteer';
+import { isIgnoredMessage, } from '../utils/message.js';
+import { timeit, } from '../utils/timeit.js';
+import { catchFailures, } from '../utils/catchFailures.js';
+import { HttpServer, } from '../../http-server/HttpServer.js';
+import {
+  SupportedDriver,
+  type Browser,
+  type Page,
+} from './types.js';
 
 type Bundle = () => Promise<void>;
 
@@ -38,7 +43,7 @@ const mockCdn: MockCDN = (server, packageName, pathToModel) => {
   return pathToAsset;
 };
 
-export class ClientsideTestRunner {
+export class ClientsideTestRunner<D extends SupportedDriver> {
   trackTime: boolean;
   showWarnings: boolean;
   log: boolean;
@@ -48,13 +53,17 @@ export class ClientsideTestRunner {
   private mock: boolean;
   private _server: HttpServer | undefined;
   private _fixtures: HttpServer | undefined;
-  private _browser: Browser | undefined;
-  private _page: Page | undefined;
-  private _context: BrowserContext | undefined;
+  private _browser: Browser<D> | undefined;
+  private _page: Page<D> | undefined;
+  private _context: PuppeteerBrowserContext | undefined;
   private _name?: string;
+  private driver: D;
+  private launch: () => Promise<Browser<D>>;
 
   constructor({
     name,
+    driver,
+    launch,
     mock = false,
     dist,
     port = DEFAULT_PORT,
@@ -64,6 +73,8 @@ export class ClientsideTestRunner {
     useTunnel = USE_TUNNEL,
   }: {
     name?: string;
+    driver: D,
+    launch: () => Promise<Browser<D>>;
     mock?: boolean;
     dist?: string;
     port?: number;
@@ -72,6 +83,8 @@ export class ClientsideTestRunner {
     showWarnings?: boolean;
     useTunnel?: boolean;
   }) {
+    this.driver = driver;
+    this.launch = launch;
     this._name = name;
     this.mock = mock;
     this.dist = dist;
@@ -86,7 +99,7 @@ export class ClientsideTestRunner {
    * Getters and setters
    */
 
-  private _getLocal<T extends Browser | Page | BrowserContext | HttpServer>(key: '_server' | '_fixtures' | '_browser' | '_page' | '_context'): T {
+  private _getLocal<T extends Browser<D> | Page<D> | PuppeteerBrowserContext | HttpServer>(key: '_server' | '_fixtures' | '_browser' | '_page' | '_context'): T {
     if (!this[key]) {
       throw new Error(this._getLogMessage(`${key.substring(1)} is undefined`));
     }
@@ -112,8 +125,8 @@ export class ClientsideTestRunner {
     this._fixtures = fixtures;
   }
 
-  get browser(): Browser { return this._getLocal('_browser'); }
-  set browser(browser: Browser | undefined) {
+  get browser(): Browser<D> { return this._getLocal('_browser'); }
+  set browser(browser: Browser<D> | undefined) {
     if (browser && this._browser) {
       throw new Error(this._getLogMessage('Browser is already active'));
     }
@@ -121,22 +134,22 @@ export class ClientsideTestRunner {
   }
 
 
-  get context(): BrowserContext { return this._getLocal('_context'); }
-  set context(context: BrowserContext | undefined) {
+  get context(): PuppeteerBrowserContext { return this._getLocal('_context'); }
+  set context(context: PuppeteerBrowserContext | undefined) {
     if (context && this._context) {
       throw new Error(this._getLogMessage('Context is already active'));
     }
     this._context = context;
   }
 
-  get page(): Page {
-    const page = this._getLocal<Page>('_page');
+  get page(): Page<D> {
+    const page = this._getLocal<Page<D>>('_page');
     // if (page && page.isClosed() === true) {
     //   throw new Error('Page is already closed; did you forget to close and restart the browser?');
     // }
     return page;
   }
-  set page(page: Page | undefined) {
+  set page(page: Page<D> | undefined) {
     if (page && this._page) {
       throw new Error(this._getLogMessage('Page is already active'));
     }
@@ -158,11 +171,17 @@ export class ClientsideTestRunner {
   }
 
   public async waitForTitle(pageTitleToAwait: string) {
-    await this.page.waitForFunction(`document.title.endsWith("${pageTitleToAwait}")`);
+    if (isPuppeteer(this.driver)) {
+      const page = this.page as Page<SupportedDriver.puppeteer>;
+      await page.waitForFunction(`document.title.endsWith("${pageTitleToAwait}")`);
+    } else if (isPlaywright(this.driver)) {
+      const page = this.page as Page<SupportedDriver.playwright>;
+      await page.waitForFunction(`document.title.endsWith("${pageTitleToAwait}")`);
+    }
   }
 
   public async navigateToServer(pageTitleToAwait: string | null) {
-    await this.page.goto(await this.getServerURL());
+    await this.page.goto(this.getServerURL());
     if (pageTitleToAwait !== null) {
       await this.waitForTitle(pageTitleToAwait);
     }
@@ -218,72 +237,80 @@ export class ClientsideTestRunner {
   }
 
   public async startBrowser() {
-    // launch handles launching an instance and then connecting to it
-    this.browser = await launch({
-      // headless: 'new',
-      protocolTimeout: 180_000 * 2,
-    });
-
-    // connect is for connecting to an already running instance
-    // this.browser = await connect({
-
-    // });
+    this.browser = await this.launch();
   }
 
   private _attachLogger() {
     if (this.log) {
-      this.page.on('console', message => {
-        const type = message.type();
-        const text = message.text();
-        if (!isIgnoredMessage(text)) {
-          console.log(`[PAGE][${type}] ${text}`);
-        }
-      })
-        .on('pageerror', ({ message, }) => console.log(message))
-        .on('response', response => {
-          const status = response.status();
-          if (`${status}` !== `${200}`) {
-            console.log(`[PAGE][response][${status}] ${response.url()}`);
+      if (isPuppeteer(this.driver)) {
+        const page = this.page as Page<SupportedDriver.puppeteer>;
+        page.on('console', message => {
+          const type = message.type();
+          const text = message.text();
+          if (!isIgnoredMessage(text)) {
+            console.log(`[PAGE][${type}] ${text}`);
           }
         })
-        .on('requestfailed', request => {
-          console.log(`[PAGE][requestfailed][${request.failure()?.errorText}] ${request.url()}`);
-        });
+          .on('pageerror', ({ message, }) => console.log(message))
+          .on('response', response => {
+            const status = response.status();
+            if (`${status}` !== `${200}`) {
+              console.log(`[PAGE][response][${status}] ${response.url()}`);
+            }
+          })
+          .on('requestfailed', request => {
+            console.log(`[PAGE][requestfailed][${request.failure()?.errorText}] ${request.url()}`);
+          });
+      } else if (isPlaywright(this.driver)) {
+        throw new Error('Logging not yet supported for playwright');
+      }
     }
   }
 
-  private _bootstrapCDN() {
+  private async _bootstrapCDN() {
     if (this.mock) {
-      this.page.setRequestInterception(true);
-      this.page.on('request', (request) => {
-        const url = request.url();
+      if (isPuppeteer(this.driver)) {
+        const page = this.page as Page<SupportedDriver.puppeteer>;
+        await page.setRequestInterception(true);
+        page.on('request', (request) => {
+          const url = request.url();
 
-        // this is a request for a model
-        if (url.includes('@upscalerjs')) {
-          const modelPath = url.split('@upscalerjs/').pop()?.split('@');
-          if (!modelPath?.length) {
-            throw new Error(`URL ${url} is not a model`);
+          // this is a request for a model
+          if (url.includes('@upscalerjs')) {
+            const modelPath = url.split('@upscalerjs/').pop()?.split('@');
+            if (!modelPath?.length) {
+              throw new Error(`URL ${url} is not a model`);
+            }
+            const [model, restOfModelPath,] = modelPath;
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
+            const [_, ...pathToModel] = restOfModelPath.split('/');
+            const redirectedURL = mockCdn(this.fixturesServer, model, pathToModel.join('/'));
+            // console.log(`mock request ${url} to ${redirectedURL}`);
+            void request.continue({
+              url: redirectedURL,
+            });
+          } else {
+            void request.continue();
           }
-          const [model, restOfModelPath,] = modelPath;
-          const [_, ...pathToModel] = restOfModelPath.split('/');
-          const redirectedURL = mockCdn(this.fixturesServer, model, pathToModel.join('/'));
-          // console.log(`mock request ${url} to ${redirectedURL}`);
-          request.continue({
-            url: redirectedURL,
-          });
-        } else {
-          request.continue();
-        }
-      });
+        });
+      } else if (isPlaywright(this.driver)) {
+        throw new Error('CDN mocking not yet supported for playwright');
+      }
     }
   }
 
   public async createNewPage() {
-    this.context = await this.browser.createBrowserContext({
-    });
-    this.page = await this.context.newPage();
+    if (isPuppeteer(this.driver)) {
+      const browser = this.browser as Browser<SupportedDriver.puppeteer>;
+      this.context = await browser.createBrowserContext({
+      });
+      this.page = await this.context.newPage() as Page<D>;
+    } else if (isPlaywright(this.driver)) {
+      const browser = this.browser as Browser<SupportedDriver.playwright>;
+      this.page = await browser.newPage() as Page<D>;
+    }
     this._attachLogger();
-    this._bootstrapCDN();
+    await this._bootstrapCDN();
   }
 
   public async closeBrowser() {
@@ -317,7 +344,7 @@ export class ClientsideTestRunner {
    */
 
   @catchFailures()
-  @timeit<[Bundle], ClientsideTestRunner>('beforeAll scaffolding')
+  @timeit<[Bundle], ClientsideTestRunner<D>>('beforeAll scaffolding')
   async beforeAll(bundle?: Bundle) {
     // const opts = this._makeOpts();
     const _bundle = async () => {
@@ -343,14 +370,14 @@ export class ClientsideTestRunner {
   }
 
   @catchFailures()
-  @timeit<[string], ClientsideTestRunner>('beforeEach scaffolding')
+  @timeit<[string], ClientsideTestRunner<D>>('beforeEach scaffolding')
   async beforeEach(pageTitleToAwait: string | null = '| Loaded') {
     await this.createNewPage();
     await this.navigateToServer(pageTitleToAwait);
   }
 
   @catchFailures()
-  @timeit<[AfterEachCallback], ClientsideTestRunner>('afterEach clean up')
+  @timeit<[AfterEachCallback], ClientsideTestRunner<D>>('afterEach clean up')
   async afterEach(callback?: AfterEachCallback) {
     await Promise.all([
       this._closeContext(),
@@ -359,3 +386,6 @@ export class ClientsideTestRunner {
   }
 }
 
+
+const isPuppeteer = (driver: SupportedDriver): driver is SupportedDriver.puppeteer => driver === SupportedDriver.puppeteer;
+const isPlaywright = (driver: SupportedDriver): driver is SupportedDriver.playwright => driver === SupportedDriver.playwright;
