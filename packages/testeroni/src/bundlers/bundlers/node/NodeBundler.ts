@@ -8,6 +8,7 @@ import { writePackageJSON, } from '../../utils/write-package-json.js';
 import { DIST_ROOT, } from '../../utils/get-root.js';
 import type { BundleOptions, } from '../../types.js';
 import { withWorkingDir } from '../../utils/with-working-dir.js';
+import { NodeBundleOptions } from './types.js';
 
 /***
  * Constants
@@ -39,7 +40,7 @@ export class NodeBundler extends Bundler {
     devDependencies = {},
     module = true,
     // workingDir,
-  }: Pick<BundleOptions, 'workingDir' | 'dependencies' | 'devDependencies' | 'module' | 'skipNpmInstall' | 'keepWorkingFiles'>) {
+  }: NodeBundleOptions) {
     info('Bundling Node...');
     const workingDir = this.outDir;
     await withWorkingDir(async (workingDir) => {

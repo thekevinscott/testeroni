@@ -12,6 +12,7 @@ import { DIST_ROOT, } from '../../utils/get-root.js';
 import { getHashedName, } from '../../../common/get-hashed-name.js';
 import type { BundleOptions, } from '../../types.js';
 import { withWorkingDir, } from '../../utils/with-working-dir.js';
+import { ESBuildBundleOptions } from './types.js';
 
 /***
  * Constants
@@ -48,7 +49,7 @@ export class EsbuildBundler extends Bundler {
     devDependencies = {},
     type = 'module',
     workingDir,
-  }: Pick<BundleOptions, 'workingDir' | 'type' | 'title' | 'dependencies' | 'devDependencies' | 'module' | 'skipNpmInstall' | 'keepWorkingFiles'>) {
+  }: ESBuildBundleOptions) {
     const dist = this.outDir;
 
     let indexJSEntryFile;

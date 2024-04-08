@@ -13,6 +13,7 @@ import { DIST_ROOT, } from '../../utils/get-root.js';
 import { getHashedName, } from '../../../common/get-hashed-name.js';
 import type { BundleOptions, } from '../../types.js';
 import { withWorkingDir, } from '../../utils/with-working-dir.js';
+import { WebpackBuildBundleOptions } from './types.js';
 
 /***
  * Constants
@@ -59,7 +60,7 @@ export class WebpackBundler extends Bundler {
     devDependencies = {},
     type = 'module',
     workingDir,
-  }: Pick<BundleOptions, 'workingDir' | 'type' | 'title' | 'dependencies' | 'devDependencies' | 'module' | 'skipNpmInstall' | 'keepWorkingFiles'>) {
+  }: WebpackBuildBundleOptions) {
     // const dist = path.resolve(this.outDir, this.dist);
     // const dist = path.resolve(this.outDir);
     const dist = this.outDir;
