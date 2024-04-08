@@ -10,6 +10,7 @@ import { writeIndexJS, } from '../../utils/write-index-js.js';
 import { writePackageJSON, } from '../../utils/write-package-json.js';
 import { DIST_ROOT, } from '../../utils/get-root.js';
 import { getHashedName, } from '../../../common/get-hashed-name.js';
+import type { BundleOptions, } from '../../types.js';
 
 /***
  * Constants
@@ -45,14 +46,7 @@ export class EsbuildBundler extends Bundler {
     dependencies = {},
     devDependencies = {},
     type = 'module',
-  }: {
-    type: 'module' | 'commonjs';
-    title?: string;
-    dependencies?: Record<string, string>;
-    devDependencies?: Record<string, string>;
-    skipNpmInstall?: boolean;
-    keepWorkingFiles?: boolean;
-  }) {
+  }: Pick<BundleOptions, 'type' | 'title' | 'dependencies' | 'devDependencies' | 'module' | 'skipNpmInstall' | 'keepWorkingFiles'>) {
     const dist = path.resolve(this.outDir, this.dist);
 
     // this file produces the final js file
