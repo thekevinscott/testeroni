@@ -59,7 +59,7 @@ export class UMDBundler extends Bundler {
     info(`Bundled UMD successfully to ${dist}`);
   }
 
-  static getTargetFileName(pathToFile: string) {
+  static getTargetFileName = (pathToFile: string) => {
     return pathToFile.split('/').join('_');
-  }
+  };
 }

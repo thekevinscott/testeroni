@@ -23,6 +23,7 @@
     "lint": "wireit",
     "test": "vitest",
     "copy:templates": "wireit",
+    "copy:package-files": "wireit",
     "build": "wireit",
     "build:check": "wireit",
     "build:esm": "wireit"
@@ -40,8 +41,11 @@
     "copy:templates": {
       "command": "cpx \"src/**/*.ejs\" ./dist"
     },
+    "copy:package-files": {
+      "command": "cp ../../README.md ./README.md && cp ../../LICENSE ./LICENSE"
+    },
     "build": {
-      "command": "rimraf ./dist && pnpm build:esm && pnpm copy:templates && cp ../../README.md ./README.md && cp ../../LICENSE ./LICENSE",
+      "command": "rimraf ./dist && pnpm build:esm && pnpm copy:templates && pnpm copy:package-files && pnpm build:check",
       "files": [
         "../../README.md",
         "../../LICENSE",
