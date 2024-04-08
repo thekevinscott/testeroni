@@ -7,7 +7,7 @@
   "license": "MIT",
   "homepage": "https://github.com/thekevinscott/testeroni",
   "scripts": {
-    "postinstall": "pnpm exec playwright install",
+    "postinstall": "pnpm exec playwright install && node node_modules/puppeteer/install.mjs",
     "test": "wireit"
   },
   "wireit": {
@@ -26,6 +26,8 @@
   "devDependencies": {
     "@types/fs-extra": "^11.0.4",
     "playwright": "^1.43.0",
+    "puppeteer": "^22.6.2",
+    "selenium-webdriver": "^4.19.0",
     "vitest": "^1.4.0",
     "wireit": "^0.14.4"
   }
