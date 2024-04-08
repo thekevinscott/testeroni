@@ -62,7 +62,7 @@ export class HttpServer {
       response.setHeader('Access-Control-Request-Method', '*');
       response.setHeader('Access-Control-Allow-Methods', 'OPTIONS, GET');
       response.setHeader('Access-Control-Allow-Headers', '*');
-      return handler(request, response, {
+      void handler(request, response, {
         public: this.dist,
         headers: serverHeaders,
       });
@@ -109,7 +109,7 @@ export class HttpServer {
         if (!this.tunnel) {
           throw new Error('No tunnel was set.');
         }
-        this.tunnel.close();
+        return this.tunnel.close();
       }
     };
     await Promise.all([
