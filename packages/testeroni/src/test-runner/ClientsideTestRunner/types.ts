@@ -15,9 +15,9 @@ import type {
   SeleniumPage,
 } from './webdriver/selenium-page';
 export enum SupportedDriver {
-  'puppeteer',
-  'playwright',
-  'selenium',
+  'puppeteer' = 'puppeteer',
+  'playwright' = 'playwright',
+  'selenium' = 'selenium',
 }
 export type Browser<D extends SupportedDriver> =
   D extends SupportedDriver.puppeteer
@@ -42,3 +42,4 @@ export type Launch<D extends SupportedDriver> = () => Promise<Browser<D>>;
 export type Capabilities = Parameters<Builder['withCapabilities']>[0];
 
 export type SeleniumDriver = WebDriver | ThenableWebDriver;
+export type Mock<D extends SupportedDriver> = (page: Page<D>) => (Promise<void> | void);

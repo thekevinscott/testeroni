@@ -4,12 +4,6 @@ import {
   type Page,
 } from './types.js';
 import { isIgnoredMessage, } from '../utils/message.js';
-import type {
-  HttpServer,
-} from '../../http-server/HttpServer.js';
-import {
-  mockCdn,
-} from './mock-cdn.js';
 import {
   SeleniumDriver,
 } from './types.js';
@@ -74,37 +68,6 @@ export class Driver<D extends SupportedDriver> {
         });
     } else {
       throw new Error('Logging not yet supported for selenium');
-    }
-  }
-
-  public async bootstrapCDN(server: HttpServer) {
-    if (isPuppeteer(this.name)) {
-      // TODO: Replace this with generic cdn code
-      const page = this.page as Page<SupportedDriver.puppeteer>;
-      await page.setRequestInterception(true);
-      page.on('request', (request) => {
-        const url = request.url();
-
-        // this is a request for a model
-        if (url.includes('@upscalerjs')) {
-          const modelPath = url.split('@upscalerjs/').pop()?.split('@');
-          if (!modelPath?.length) {
-            throw new Error(`URL ${url} is not a model`);
-          }
-          const [model, restOfModelPath,] = modelPath;
-          // eslint-disable-next-line @typescript-eslint/no-unused-vars
-          const [_, ...pathToModel] = restOfModelPath.split('/');
-          const redirectedURL = mockCdn(server, model, pathToModel.join('/'));
-          // console.log(`mock request ${url} to ${redirectedURL}`);
-          void request.continue({
-            url: redirectedURL,
-          });
-        } else {
-          void request.continue();
-        }
-      });
-    } else {
-      throw new Error('CDN mocking not yet supported for playwright or selenium');
     }
   }
 

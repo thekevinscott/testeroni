@@ -13,24 +13,21 @@ import type {
 const prefs = new logging.Preferences();
 prefs.setLevel(logging.Type.BROWSER, logging.Level.INFO);
 
-
 export const getDriver = (capabilities: Capabilities, {
+  username,
+  accessKey,
+  build,
+  project,
+}: {
+  username: string;
+  accessKey: string;
+  build: string;
+  project: string;
+}, {
   verbose,
-  env: {
-    username,
-    accessKey,
-    build,
-    project,
-  },
 }: {
   verbose?: boolean,
-  env: {
-    username: string;
-    accessKey: string;
-    build: string;
-    project: string;
-  }
-}): ThenableWebDriver => new webdriver.Builder()
+} = {}): ThenableWebDriver => new webdriver.Builder()
   .usingServer(getServerURL(username, accessKey))
   .setLoggingPrefs(prefs)
   .withCapabilities({
