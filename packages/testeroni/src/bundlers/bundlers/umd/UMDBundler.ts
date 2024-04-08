@@ -6,6 +6,7 @@ import { getTemplate, } from '../../../common/get-template.js';
 import { DIST_ROOT, } from '../../utils/get-root.js';
 import type { BundleOptions, } from '../../types.js';
 import { withWorkingDir } from '../../utils/with-working-dir.js';
+import { UMDBuildBundleOptions } from './types.js';
 
 /***
  * Constants
@@ -42,7 +43,7 @@ export class UMDBundler extends Bundler {
     title = this.name,
     files: dependencies = [],
     // workingDir,
-  }: Pick<BundleOptions, 'workingDir' | 'title' | 'files'>) {
+  }: UMDBuildBundleOptions) {
     const workingDir = this.outDir;
     info('Bundling UMD...');
     await withWorkingDir(async (dist) => {
