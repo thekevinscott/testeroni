@@ -5,6 +5,7 @@ import { info, } from '../../../common/logger.js';
 import { getTemplate, } from '../../../common/get-template.js';
 import { DIST_ROOT, } from '../../utils/get-root.js';
 import type { BundleOptions, } from '../../types.js';
+import { withWorkingDir } from '../../utils/with-working-dir.js';
 
 /***
  * Constants
@@ -40,21 +41,23 @@ export class UMDBundler extends Bundler {
   async bundle({
     title = this.name,
     files: dependencies = [],
-  }: Pick<BundleOptions, 'title' | 'files'>) {
+    // workingDir,
+  }: Pick<BundleOptions, 'workingDir' | 'title' | 'files'>) {
+    const workingDir = this.outDir;
     info('Bundling UMD...');
-    const dist = path.resolve(this.outDir, this.dist);
+    await withWorkingDir(async (dist) => {
+      await Promise.all([
+        ...dependencies.map(async (pathToFile) => {
+          return copyFile(pathToFile, path.join(dist, UMDBundler.getTargetFileName(pathToFile)));
+        }),
+        writeIndexHTML(dist, {
+          title,
+          dependencies: dependencies.map(UMDBundler.getTargetFileName),
+        }),
+      ]);
 
-    await Promise.all([
-      ...dependencies.map(async (pathToFile) => {
-        return copyFile(pathToFile, path.join(dist, UMDBundler.getTargetFileName(pathToFile)));
-      }),
-      writeIndexHTML(dist, {
-        title,
-        dependencies: dependencies.map(UMDBundler.getTargetFileName),
-      }),
-    ]);
-
-    info(`Bundled UMD successfully to ${dist}`);
+      info(`Bundled UMD successfully to ${dist}`);
+    }, workingDir);
   }
 
   static getTargetFileName = (pathToFile: string) => {

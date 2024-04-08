@@ -11,6 +11,7 @@ import { writePackageJSON, } from '../../utils/write-package-json.js';
 import { DIST_ROOT, } from '../../utils/get-root.js';
 import { getHashedName, } from '../../../common/get-hashed-name.js';
 import type { BundleOptions, } from '../../types.js';
+import { withWorkingDir, } from '../../utils/with-working-dir.js';
 
 /***
  * Constants
@@ -46,62 +47,68 @@ export class EsbuildBundler extends Bundler {
     dependencies = {},
     devDependencies = {},
     type = 'module',
-  }: Pick<BundleOptions, 'type' | 'title' | 'dependencies' | 'devDependencies' | 'module' | 'skipNpmInstall' | 'keepWorkingFiles'>) {
-    const dist = path.resolve(this.outDir, this.dist);
+    workingDir,
+  }: Pick<BundleOptions, 'workingDir' | 'type' | 'title' | 'dependencies' | 'devDependencies' | 'module' | 'skipNpmInstall' | 'keepWorkingFiles'>) {
+    const dist = this.outDir;
 
-    // this file produces the final js file
-    const indexJSEntryFile = path.resolve(this.outDir, 'index.js');
-    // this file is used to npm install dependencies
-    const packageJSONPath = path.resolve(this.outDir, 'package.json');
-
-    // this file is the final html file served to the user
-    const indexHTMLFile = path.join(dist, 'index.html');
+    let indexJSEntryFile;
+    let packageJSONPath;
+    // const dist = path.resolve(this.outDir, this.dist);
 
     try {
-      info('Bundling esbuild...');
-      const dependencyKeys = Array.from(new Set(Object.keys({
-        ...dependencies,
-        ...devDependencies,
-      })));
-      await Promise.all([
-        writePackageJSON(getTemplate, packageJSONPath, {
-          type,
-          dependencies,
-          devDependencies: {
-            ...devDependencies,
-            "@babel/plugin-transform-modules-commonjs": "7.22.5",
-            "@babel/preset-typescript": "7.22.5",
-          },
-        }),
-        writeIndexJS(getTemplate, indexJSEntryFile, dependencyKeys.map(name => {
-          return [name, EsbuildBundler.getHashedName(name),];
-        })),
-        await writeFile(
-          indexHTMLFile,
-          await getTemplate('index.html.ejs', {
-            title,
+      await withWorkingDir(async workingDir => {
+        // this file produces the final js file
+        indexJSEntryFile = path.resolve(workingDir, 'index.js');
+        // this file is used to npm install dependencies
+        packageJSONPath = path.resolve(workingDir, 'package.json');
+
+        // this file is the final html file served to the user
+        const indexHTMLFile = path.join(dist, 'index.html');
+        info('Bundling esbuild...');
+        const dependencyKeys = Array.from(new Set(Object.keys({
+          ...dependencies,
+          ...devDependencies,
+        })));
+        await Promise.all([
+          writePackageJSON(getTemplate, packageJSONPath, {
+            type,
+            dependencies,
+            devDependencies: {
+              ...devDependencies,
+              "@babel/plugin-transform-modules-commonjs": "7.22.5",
+              "@babel/preset-typescript": "7.22.5",
+            },
           }),
-        ),
-      ]);
+          writeIndexJS(getTemplate, indexJSEntryFile, dependencyKeys.map(name => {
+            return [name, EsbuildBundler.getHashedName(name),];
+          })),
+          await writeFile(
+            indexHTMLFile,
+            await getTemplate('index.html.ejs', {
+              title,
+            }),
+          ),
+        ]);
 
-      if (skipNpmInstall !== true) {
-        info(`PNPM Install to ${this.outDir}...`);
-        await pnpmInstall(this.outDir);
-      }
+        if (skipNpmInstall !== true) {
+          info(`PNPM Install to ${this.outDir}...`);
+          await pnpmInstall(this.outDir);
+        }
 
-      info(`Bundle the code for entry file ${indexJSEntryFile}`);
-      await esbuild({
-        entryPoints: [indexJSEntryFile,],
-        absWorkingDir: this.outDir,
-        bundle: true,
-        loader: {
-          '.png': 'file',
-        },
-        outdir: dist,
-      });
-      info(`successfully bundled the code for entry file ${indexJSEntryFile}`);
+        info(`Bundle the code for entry file ${indexJSEntryFile}`);
+        await esbuild({
+          entryPoints: [indexJSEntryFile,],
+          absWorkingDir: this.outDir,
+          bundle: true,
+          loader: {
+            '.png': 'file',
+          },
+          outdir: dist,
+        });
+        info(`successfully bundled the code for entry file ${indexJSEntryFile}`);
 
-      info(`Bundled esbuild successfully to ${dist}`);
+        info(`Bundled esbuild successfully to ${dist}`);
+      }, workingDir);
     } finally {
       if (keepWorkingFiles !== true) {
         await Promise.all([

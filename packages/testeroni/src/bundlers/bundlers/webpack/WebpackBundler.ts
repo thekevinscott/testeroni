@@ -12,6 +12,7 @@ import { writePackageJSON, } from '../../utils/write-package-json.js';
 import { DIST_ROOT, } from '../../utils/get-root.js';
 import { getHashedName, } from '../../../common/get-hashed-name.js';
 import type { BundleOptions, } from '../../types.js';
+import { withWorkingDir, } from '../../utils/with-working-dir.js';
 
 /***
  * Constants
@@ -57,78 +58,86 @@ export class WebpackBundler extends Bundler {
     dependencies = {},
     devDependencies = {},
     type = 'module',
-  }: Pick<BundleOptions, 'type' | 'title' | 'dependencies' | 'devDependencies' | 'module' | 'skipNpmInstall' | 'keepWorkingFiles'>) {
-    const dist = path.resolve(this.outDir, this.dist);
-    const indexJSEntryFile = path.resolve(this.outDir, 'index.js');
-    const packageJSONPath = path.resolve(this.outDir, 'package.json');
-    const indexHTMLFile = path.resolve(this.outDir, 'index.html');
+    workingDir,
+  }: Pick<BundleOptions, 'workingDir' | 'type' | 'title' | 'dependencies' | 'devDependencies' | 'module' | 'skipNpmInstall' | 'keepWorkingFiles'>) {
+    // const dist = path.resolve(this.outDir, this.dist);
+    // const dist = path.resolve(this.outDir);
+    const dist = this.outDir;
 
+    let indexJSEntryFile;
+    let packageJSONPath;
+    let indexHTMLFile;
     try {
       info('Bundling Webpack...');
+      await withWorkingDir(async (workingDir) => {
+        indexJSEntryFile = path.resolve(workingDir, 'index.js');
+        packageJSONPath = path.resolve(workingDir, 'package.json');
+        indexHTMLFile = path.resolve(workingDir, 'index.html');
 
-      const dependencyKeys = Array.from(new Set(Object.keys({
-        ...dependencies,
-        ...devDependencies,
-      })));
-      await Promise.all([
-        writePackageJSON(getTemplate, packageJSONPath, {
-          type,
-          dependencies,
-          devDependencies: {
-            ...devDependencies,
-            "html-webpack-plugin": "5.5.3",
-            "webpack": "5.88.2",
-            "@babel/plugin-transform-modules-commonjs": "latest",
-            "@babel/preset-env": "latest",
-            "@babel/preset-typescript": "latest",
-          },
-        }),
-        writeIndexJS(getTemplate, indexJSEntryFile, dependencyKeys.map(name => {
-          return [name, WebpackBundler.getHashedName(name),];
-        })),
-        copyFile(
-          path.resolve(WEBPACK_TEMPLATES_DIR, 'index.html.ejs'),
-          indexHTMLFile,
-        ),
-      ]);
-
-      if (skipNpmInstall !== true) {
-        info(`PNPM Install to ${this.outDir}...`);
-        await pnpmInstall(this.outDir);
-      }
-
-      info(`Bundle the code for entry file ${indexJSEntryFile}`);
-
-      const htmlWebpackPlugin: WebpackPluginInstance = new HtmlWebpackPlugin({
-        title,
-        template: indexHTMLFile,
-      });
-
-      const config: Configuration = {
-        mode: 'production',
-        context: this.outDir,
-        entry: indexJSEntryFile,
-        stats: 'errors-only',
-        plugins: [htmlWebpackPlugin,],
-        output: {
-          path: dist,
-        },
-        module: {
-          rules: [
-            {
-              test: /\.(png|svg|jpg|jpeg|gif|json|bin)$/i,
-              type: 'asset/resource',
+        const dependencyKeys = Array.from(new Set(Object.keys({
+          ...dependencies,
+          ...devDependencies,
+        })));
+        await Promise.all([
+          writePackageJSON(getTemplate, packageJSONPath, {
+            type,
+            dependencies,
+            devDependencies: {
+              ...devDependencies,
+              "html-webpack-plugin": "5.5.3",
+              "webpack": "5.88.2",
+              "@babel/plugin-transform-modules-commonjs": "latest",
+              "@babel/preset-env": "latest",
+              "@babel/preset-typescript": "latest",
             },
-          ],
-        },
-      };
+          }),
+          writeIndexJS(getTemplate, indexJSEntryFile, dependencyKeys.map(name => {
+            return [name, WebpackBundler.getHashedName(name),];
+          })),
+          copyFile(
+            path.resolve(WEBPACK_TEMPLATES_DIR, 'index.html.ejs'),
+            indexHTMLFile,
+          ),
+        ]);
 
-      const compiler = webpack(config);
+        if (skipNpmInstall !== true) {
+          info(`PNPM Install to ${this.outDir}...`);
+          await pnpmInstall(this.outDir);
+        }
 
-      verbose('Running webpack compiler');
-      await compileWebpack(compiler);
+        info(`Bundle the code for entry file ${indexJSEntryFile}`);
 
-      info(`successfully bundled the code for entry file ${indexJSEntryFile}`);
+        const htmlWebpackPlugin: WebpackPluginInstance = new HtmlWebpackPlugin({
+          title,
+          template: indexHTMLFile,
+        });
+
+        const config: Configuration = {
+          mode: 'production',
+          context: this.outDir,
+          entry: indexJSEntryFile,
+          stats: 'errors-only',
+          plugins: [htmlWebpackPlugin,],
+          output: {
+            path: dist,
+          },
+          module: {
+            rules: [
+              {
+                test: /\.(png|svg|jpg|jpeg|gif|json|bin)$/i,
+                type: 'asset/resource',
+              },
+            ],
+          },
+        };
+
+        const compiler = webpack(config);
+
+        verbose('Running webpack compiler');
+        await compileWebpack(compiler);
+
+        info(`successfully bundled the code for entry file ${indexJSEntryFile}`);
+      }, workingDir);
     } finally {
       if (keepWorkingFiles !== true) {
         await Promise.all([

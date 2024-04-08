@@ -14,6 +14,7 @@ export type NameToBundlerMap = {
   [K in BundlerName]: InstanceType<typeof BUNDLERS[K]>;
 };
 export interface BundleOptions {
+  workingDir?: string;
   title?: string;
   module?: boolean;
   skipNpmInstall?: boolean;

@@ -7,6 +7,7 @@ import { info, } from '../../../common/logger.js';
 import { writePackageJSON, } from '../../utils/write-package-json.js';
 import { DIST_ROOT, } from '../../utils/get-root.js';
 import type { BundleOptions, } from '../../types.js';
+import { withWorkingDir } from '../../utils/with-working-dir.js';
 
 /***
  * Constants
@@ -37,35 +38,39 @@ export class NodeBundler extends Bundler {
     dependencies = {},
     devDependencies = {},
     module = true,
-  }: Pick<BundleOptions, 'dependencies' | 'devDependencies' | 'module' | 'skipNpmInstall' | 'keepWorkingFiles'>) {
+    // workingDir,
+  }: Pick<BundleOptions, 'workingDir' | 'dependencies' | 'devDependencies' | 'module' | 'skipNpmInstall' | 'keepWorkingFiles'>) {
     info('Bundling Node...');
-    const packageJSONPath = path.resolve(this.outDir, 'package.json');
-    try {
-      await writePackageJSON(getTemplate, packageJSONPath, {
-        type: module ? 'module' : 'commonjs',
-        dependencies,
-        devDependencies: {
-          ...devDependencies,
-          "tslib": "2.6.1",
-        },
-      });
-
-      if (skipNpmInstall !== true) {
-        info(`PNPM Install to ${this.outDir}...`);
-        await pnpmInstall(this.outDir, {
-          // isSilent,
-          // registryURL,
+    const workingDir = this.outDir;
+    await withWorkingDir(async (workingDir) => {
+      const packageJSONPath = path.resolve(workingDir, 'package.json');
+      try {
+        await writePackageJSON(getTemplate, packageJSONPath, {
+          type: module ? 'module' : 'commonjs',
+          dependencies,
+          devDependencies: {
+            ...devDependencies,
+            "tslib": "2.6.1",
+          },
         });
-      }
 
-      info('Bundled Node successfully');
-    } finally {
-      if (keepWorkingFiles !== true) {
-        await Promise.all([
-          packageJSONPath,
-        ].map(removeIfExists));
+        if (skipNpmInstall !== true) {
+          info(`PNPM Install to ${workingDir}...`);
+          await pnpmInstall(workingDir, {
+            // isSilent,
+            // registryURL,
+          });
+        }
+
+        info('Bundled Node successfully');
+      } finally {
+        if (keepWorkingFiles !== true) {
+          await Promise.all([
+            packageJSONPath,
+          ].map(removeIfExists));
+        }
       }
-    }
+    }, workingDir);
   }
 }
 
