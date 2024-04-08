@@ -3,8 +3,8 @@ import { rimraf, } from "rimraf";
 
 const { exists, } = fsExtra;
 
-export const removeIfExists = async (pathname: string | null) => {
-  if (pathname !== null && await exists(pathname)) {
+export const removeIfExists = async (pathname?: string | null) => {
+  if (pathname !== undefined && pathname !== null && await exists(pathname)) {
     await rimraf(pathname);
   }
 };
