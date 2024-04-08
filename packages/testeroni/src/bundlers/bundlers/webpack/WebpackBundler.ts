@@ -11,7 +11,6 @@ import { writeIndexJS, } from '../../utils/write-index-js.js';
 import { writePackageJSON, } from '../../utils/write-package-json.js';
 import { DIST_ROOT, } from '../../utils/get-root.js';
 import { getHashedName, } from '../../../common/get-hashed-name.js';
-import { existsSync, readFileSync, } from 'fs-extra';
 
 /***
  * Constants
