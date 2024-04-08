@@ -98,7 +98,7 @@ export class EsbuildBundler extends Bundler {
         info(`Bundle the code for entry file ${indexJSEntryFile}`);
         await esbuild({
           entryPoints: [indexJSEntryFile,],
-          absWorkingDir: this.outDir,
+          absWorkingDir: path.resolve(this.outDir),
           bundle: true,
           loader: {
             '.png': 'file',

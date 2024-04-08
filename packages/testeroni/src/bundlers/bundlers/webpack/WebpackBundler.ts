@@ -114,7 +114,7 @@ export class WebpackBundler extends Bundler {
 
         const config: Configuration = {
           mode: 'production',
-          context: this.outDir,
+          context: path.resolve(this.outDir),
           entry: indexJSEntryFile,
           stats: 'errors-only',
           plugins: [htmlWebpackPlugin,],
