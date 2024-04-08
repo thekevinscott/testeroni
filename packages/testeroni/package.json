@@ -20,7 +20,6 @@
     ".": "./dist/index.js"
   },
   "scripts": {
-    "postinstall": "pnpm exec playwright install",
     "lint": "wireit",
     "test": "vitest",
     "copy:templates": "wireit",
@@ -89,6 +88,9 @@
     "vite": "^5.2.8",
     "vite-plugin-dts": "^3.8.1",
     "vitest": "^1.4.0",
+    "playwright": "^1.43.0",
+    "puppeteer": "^22.6.2",
+    "selenium-webdriver": "^4.19.0",
     "wireit": "^0.14.4"
   },
   "engines": {
@@ -104,9 +106,6 @@
     "get-port": "^7.1.0",
     "html-webpack-plugin": "^5.6.0",
     "package-up": "^5.0.0",
-    "playwright": "^1.43.0",
-    "puppeteer": "^22.6.2",
-    "selenium-webdriver": "^4.19.0",
     "serve-handler": "^6.1.5",
     "tunnelmole": "^2.2.14",
     "webpack": "^5.91.0"

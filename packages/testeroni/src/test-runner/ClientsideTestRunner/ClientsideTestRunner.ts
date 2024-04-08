@@ -1,5 +1,3 @@
-import { BrowserContext as PuppeteerBrowserContext, } from 'puppeteer';
-import { isIgnoredMessage, } from '../utils/message.js';
 import { timeit, } from '../utils/timeit.js';
 import { catchFailures, } from '../utils/catchFailures.js';
 import { HttpServer, } from '../../http-server/HttpServer.js';
@@ -8,15 +6,20 @@ import {
   type Browser,
   type Page,
 } from './types.js';
+import { Driver, } from './Driver.js';
+import {
+  isPlaywright,
+  isPuppeteer,
+  isSelenium,
+} from './type-guards.js';
+import type { SeleniumPage, } from './webdriver/selenium-page.js';
 
 type Bundle = () => Promise<void>;
 
-// const DEFAULT_PORT = 8098;
 const DEFAULT_PORT = 0;
 
 const USE_TUNNEL = process.env.useTunnel === '1';
 
-type MockCDN = (server: HttpServer, model: string, pathToModel: string) => string;
 export type AfterEachCallback = () => Promise<unknown>;
 
 const getURL = (server?: HttpServer) => {
@@ -31,18 +34,6 @@ const getURL = (server?: HttpServer) => {
 };
 
 
-const mockCdn: MockCDN = (server, packageName, pathToModel) => {
-  if (!server.url) {
-    throw new Error('No URL was available on fixtures server');
-  }
-  const pathToAsset = [
-    server.url,
-    packageName,
-    pathToModel,
-  ].join('/');
-  return pathToAsset;
-};
-
 export class ClientsideTestRunner<D extends SupportedDriver> {
   trackTime: boolean;
   showWarnings: boolean;
@@ -53,12 +44,8 @@ export class ClientsideTestRunner<D extends SupportedDriver> {
   private mock: boolean;
   private _server: HttpServer | undefined;
   private _fixtures: HttpServer | undefined;
-  private _browser: Browser<D> | undefined;
-  private _page: Page<D> | undefined;
-  private _context: PuppeteerBrowserContext | undefined;
   private _name?: string;
-  private driver: D;
-  private launch: () => Promise<Browser<D>>;
+  private driver: Driver<D>;
 
   constructor({
     name,
@@ -83,8 +70,7 @@ export class ClientsideTestRunner<D extends SupportedDriver> {
     showWarnings?: boolean;
     useTunnel?: boolean;
   }) {
-    this.driver = driver;
-    this.launch = launch;
+    this.driver = new Driver<D>(driver, launch);
     this._name = name;
     this.mock = mock;
     this.dist = dist;
@@ -99,17 +85,16 @@ export class ClientsideTestRunner<D extends SupportedDriver> {
    * Getters and setters
    */
 
-  private _getLocal<T extends Browser<D> | Page<D> | PuppeteerBrowserContext | HttpServer>(key: '_server' | '_fixtures' | '_browser' | '_page' | '_context'): T {
-    if (!this[key]) {
-      throw new Error(this._getLogMessage(`${key.substring(1)} is undefined`));
-    }
-    return this[key] as T;
-  }
-
   getServerURL = () => getURL(this.server);
   getFixturesServerURL = () => getURL(this.fixturesServer);
 
-  get server(): HttpServer { return this._getLocal('_server'); }
+  get server(): HttpServer {
+    if (!this._server) {
+      throw new Error('Server is undefined');
+    }
+    return this._server;
+  }
+
   set server(server: HttpServer | undefined) {
     if (server && this._server) {
       throw new Error(this._getLogMessage('Server is already active'));
@@ -117,7 +102,13 @@ export class ClientsideTestRunner<D extends SupportedDriver> {
     this._server = server;
   }
 
-  get fixturesServer(): HttpServer { return this._getLocal('_fixtures'); }
+  get fixturesServer(): HttpServer {
+    if (!this._fixtures) {
+      throw new Error('Fixtures server is undefined');
+    }
+    return this._fixtures;
+  }
+
   set fixturesServer(fixtures: HttpServer | undefined) {
     if (fixtures && this._fixtures) {
       throw new Error(this._getLogMessage('Fixtures Server is already active'));
@@ -125,35 +116,45 @@ export class ClientsideTestRunner<D extends SupportedDriver> {
     this._fixtures = fixtures;
   }
 
-  get browser(): Browser<D> { return this._getLocal('_browser'); }
+  get browser(): Browser<D> {
+    if (!this.driver.browser) {
+      throw new Error('Browser is undefined');
+    }
+    return this.driver.browser;
+  }
   set browser(browser: Browser<D> | undefined) {
-    if (browser && this._browser) {
-      throw new Error(this._getLogMessage('Browser is already active'));
+    if (browser && this.browser) {
+      throw new Error('Browser is already active');
     }
-    this._browser = browser;
+    this.driver.browser = browser;
   }
 
 
-  get context(): PuppeteerBrowserContext { return this._getLocal('_context'); }
-  set context(context: PuppeteerBrowserContext | undefined) {
-    if (context && this._context) {
-      throw new Error(this._getLogMessage('Context is already active'));
-    }
-    this._context = context;
-  }
+  // get context(): PuppeteerBrowserContext { return this._getLocal('_context'); }
+  // set context(context: PuppeteerBrowserContext | undefined) {
+  //   if (context && this._context) {
+  //     throw new Error(this._getLogMessage('Context is already active'));
+  //   }
+  //   this._context = context;
+  // }
 
   get page(): Page<D> {
-    const page = this._getLocal<Page<D>>('_page');
-    // if (page && page.isClosed() === true) {
-    //   throw new Error('Page is already closed; did you forget to close and restart the browser?');
-    // }
-    return page;
+    if (!this.driver.page) {
+      throw new Error('Page is undefined');
+    }
+    return this.driver.page;
+    // const page = this._getLocal<Page<D>>('_page');
+    // // if (page && page.isClosed() === true) {
+    // //   throw new Error('Page is already closed; did you forget to close and restart the browser?');
+    // // }
+    // return page;
   }
   set page(page: Page<D> | undefined) {
-    if (page && this._page) {
-      throw new Error(this._getLogMessage('Page is already active'));
-    }
-    this._page = page;
+    this.driver.page = page;
+    // if (page && this._page) {
+    //   throw new Error(this._getLogMessage('Page is already active'));
+    // }
+    // this._page = page;
   }
 
   /****
@@ -171,19 +172,29 @@ export class ClientsideTestRunner<D extends SupportedDriver> {
   }
 
   public async waitForTitle(pageTitleToAwait: string) {
-    if (isPuppeteer(this.driver)) {
-      const page = this.page as Page<SupportedDriver.puppeteer>;
-      await page.waitForFunction(`document.title.endsWith("${pageTitleToAwait}")`);
-    } else if (isPlaywright(this.driver)) {
-      const page = this.page as Page<SupportedDriver.playwright>;
-      await page.waitForFunction(`document.title.endsWith("${pageTitleToAwait}")`);
-    }
+    return this.driver.waitForTitle(pageTitleToAwait);
   }
 
   public async navigateToServer(pageTitleToAwait: string | null) {
-    await this.page.goto(this.getServerURL());
-    if (pageTitleToAwait !== null) {
-      await this.waitForTitle(pageTitleToAwait);
+    const url = this.getServerURL();
+    if (isPuppeteer(this.driver.name)) {
+      const page = this.page as Page<SupportedDriver.puppeteer>;
+      await page.goto(url);
+      if (pageTitleToAwait !== null) {
+        await this.waitForTitle(pageTitleToAwait);
+      }
+    } else if (isPlaywright(this.driver.name)) {
+      const page = this.page as Page<SupportedDriver.playwright>;
+      await page.goto(url);
+      if (pageTitleToAwait !== null) {
+        await this.waitForTitle(pageTitleToAwait);
+      }
+    } else if (isSelenium(this.driver.name)) {
+      const page = this.page as SeleniumPage;
+      await page.goto(url);
+      if (pageTitleToAwait !== null) {
+        await this.waitForTitle(pageTitleToAwait);
+      }
     }
   }
 
@@ -237,78 +248,23 @@ export class ClientsideTestRunner<D extends SupportedDriver> {
   }
 
   public async startBrowser() {
-    this.browser = await this.launch();
+    await this.driver.startBrowser();
   }
 
   private _attachLogger() {
     if (this.log) {
-      if (isPuppeteer(this.driver)) {
-        const page = this.page as Page<SupportedDriver.puppeteer>;
-        page.on('console', message => {
-          const type = message.type();
-          const text = message.text();
-          if (!isIgnoredMessage(text)) {
-            console.log(`[PAGE][${type}] ${text}`);
-          }
-        })
-          .on('pageerror', ({ message, }) => console.log(message))
-          .on('response', response => {
-            const status = response.status();
-            if (`${status}` !== `${200}`) {
-              console.log(`[PAGE][response][${status}] ${response.url()}`);
-            }
-          })
-          .on('requestfailed', request => {
-            console.log(`[PAGE][requestfailed][${request.failure()?.errorText}] ${request.url()}`);
-          });
-      } else if (isPlaywright(this.driver)) {
-        throw new Error('Logging not yet supported for playwright');
-      }
+      this.driver.attachLogger();
     }
   }
 
   private async _bootstrapCDN() {
     if (this.mock) {
-      if (isPuppeteer(this.driver)) {
-        const page = this.page as Page<SupportedDriver.puppeteer>;
-        await page.setRequestInterception(true);
-        page.on('request', (request) => {
-          const url = request.url();
-
-          // this is a request for a model
-          if (url.includes('@upscalerjs')) {
-            const modelPath = url.split('@upscalerjs/').pop()?.split('@');
-            if (!modelPath?.length) {
-              throw new Error(`URL ${url} is not a model`);
-            }
-            const [model, restOfModelPath,] = modelPath;
-            // eslint-disable-next-line @typescript-eslint/no-unused-vars
-            const [_, ...pathToModel] = restOfModelPath.split('/');
-            const redirectedURL = mockCdn(this.fixturesServer, model, pathToModel.join('/'));
-            // console.log(`mock request ${url} to ${redirectedURL}`);
-            void request.continue({
-              url: redirectedURL,
-            });
-          } else {
-            void request.continue();
-          }
-        });
-      } else if (isPlaywright(this.driver)) {
-        throw new Error('CDN mocking not yet supported for playwright');
-      }
+      await this.driver.bootstrapCDN(this.fixturesServer);
     }
   }
 
   public async createNewPage() {
-    if (isPuppeteer(this.driver)) {
-      const browser = this.browser as Browser<SupportedDriver.puppeteer>;
-      this.context = await browser.createBrowserContext({
-      });
-      this.page = await this.context.newPage() as Page<D>;
-    } else if (isPlaywright(this.driver)) {
-      const browser = this.browser as Browser<SupportedDriver.playwright>;
-      this.page = await browser.newPage() as Page<D>;
-    }
+    await this.driver.createNewPage();
     this._attachLogger();
     await this._bootstrapCDN();
   }
@@ -322,10 +278,8 @@ export class ClientsideTestRunner<D extends SupportedDriver> {
     }
   }
 
-  private async _closeContext() {
+  private _closeContext() {
     try {
-      await this.context.close();
-      this.context = undefined;
       this.page = undefined;
     } catch (err) {
       this._warn('No context found');
@@ -386,6 +340,3 @@ export class ClientsideTestRunner<D extends SupportedDriver> {
   }
 }
 
-
-const isPuppeteer = (driver: SupportedDriver): driver is SupportedDriver.puppeteer => driver === SupportedDriver.puppeteer;
-const isPlaywright = (driver: SupportedDriver): driver is SupportedDriver.playwright => driver === SupportedDriver.playwright;
