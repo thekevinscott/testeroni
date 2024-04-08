@@ -6,6 +6,7 @@ import { pnpmInstall, } from '../../../common/npm.js';
 import { info, } from '../../../common/logger.js';
 import { writePackageJSON, } from '../../utils/write-package-json.js';
 import { DIST_ROOT, } from '../../utils/get-root.js';
+import type { BundleOptions, } from '../../types.js';
 
 /***
  * Constants
@@ -36,13 +37,7 @@ export class NodeBundler extends Bundler {
     dependencies = {},
     devDependencies = {},
     module = true,
-  }: {
-    module?: boolean;
-    skipNpmInstall?: boolean;
-    keepWorkingFiles?: boolean;
-    dependencies?: Record<string, string>;
-    devDependencies?: Record<string, string>;
-  }) {
+  }: Pick<BundleOptions, 'dependencies' | 'devDependencies' | 'module' | 'skipNpmInstall' | 'keepWorkingFiles'>) {
     info('Bundling Node...');
     const packageJSONPath = path.resolve(this.outDir, 'package.json');
     try {

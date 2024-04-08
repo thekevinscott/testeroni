@@ -4,6 +4,7 @@ import { writeFile, copyFile, } from '../../../common/fs.js';
 import { info, } from '../../../common/logger.js';
 import { getTemplate, } from '../../../common/get-template.js';
 import { DIST_ROOT, } from '../../utils/get-root.js';
+import type { BundleOptions, } from '../../types.js';
 
 /***
  * Constants
@@ -38,11 +39,8 @@ export class UMDBundler extends Bundler {
 
   async bundle({
     title = this.name,
-    dependencies = [],
-  }: {
-    title?: string;
-    dependencies?: string[];
-  }) {
+    files: dependencies = [],
+  }: Pick<BundleOptions, 'title' | 'files'>) {
     info('Bundling UMD...');
     const dist = path.resolve(this.outDir, this.dist);
 

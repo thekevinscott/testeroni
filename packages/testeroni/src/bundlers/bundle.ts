@@ -1,33 +1,16 @@
 import { info, } from '../common/logger.js';
-import { EsbuildBundler, } from './bundlers/esbuild/EsbuildBundler.js';
-import { NodeBundler, } from './bundlers/node/NodeBundler.js';
-import { UMDBundler, } from './bundlers/umd/UMDBundler.js';
-import { WebpackBundler, } from './bundlers/webpack/WebpackBundler.js';
+import { BUNDLERS, BundleOptions, BundlerName, NameToBundlerMap, } from './types.js';
 import type { Bundler, } from './utils/Bundler.js';
-
-export const BUNDLERS = {
-  esbuild: EsbuildBundler,
-  webpack: WebpackBundler,
-  node: NodeBundler,
-  umd: UMDBundler,
-} as const;
-export type BundlerName = keyof typeof BUNDLERS;
-export type NameToBundlerMap = {
-  [K in BundlerName]: InstanceType<typeof BUNDLERS[K]>;
-};
 
 export function getBundler<N extends BundlerName>(name: N, outDir: string): NameToBundlerMap[N] {
   return new BUNDLERS[name](outDir) as NameToBundlerMap[N];
 };
 
-
-export type BundleOptions<N extends BundlerName> = Parameters<NameToBundlerMap[N]['bundle']>[0];
-
-export async function bundle<N extends BundlerName>(name: N, outDir: string, bundleOptions: BundleOptions<N>): Promise<Bundler> {
-  info(`Bundling ${name}`);
+export async function bundle<N extends BundlerName>(name: N, outDir: string, bundleOptions: BundleOptions): Promise<Bundler> {
+  info(`Bundling ${name} to ${outDir}`);
   const bundler = getBundler(name, outDir);
   const start = performance.now();
-  await bundler.bundle(bundleOptions as any);
+  await bundler.bundle(bundleOptions);
   const duration = ((performance.now() - start) / 1000).toFixed(2);
   info(`Bundled ${name} in ${duration}s`);
   return bundler;
