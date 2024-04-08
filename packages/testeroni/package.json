@@ -2,7 +2,7 @@
   "name": "testeroni",
   "type": "module",
   "description": "Tools for performing integration tests across a variety of environments for Javascript libraries.",
-  "version": "0.0.9",
+  "version": "0.0.10",
   "author": "Kevin Scott",
   "bin": {
     "testeroni": "./dist/bin/cli.js"

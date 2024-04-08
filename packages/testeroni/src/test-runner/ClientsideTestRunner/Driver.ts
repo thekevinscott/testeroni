@@ -53,8 +53,27 @@ export class Driver<D extends SupportedDriver> {
         .on('requestfailed', request => {
           console.log(`[PAGE][requestfailed][${request.failure()?.errorText}] ${request.url()}`);
         });
+    } else if (isPlaywright(this.name)) {
+      const page = this.page as Page<SupportedDriver.playwright>;
+      page.on('console', message => {
+        const type = message.type();
+        const text = message.text();
+        if (!isIgnoredMessage(text)) {
+          console.log(`[PAGE][${type}] ${text}`);
+        }
+      })
+        .on('pageerror', ({ message, }) => console.log(message))
+        .on('response', response => {
+          const status = response.status();
+          if (`${status}` !== `${200}`) {
+            console.log(`[PAGE][response][${status}] ${response.url()}`);
+          }
+        })
+        .on('requestfailed', request => {
+          console.log(`[PAGE][requestfailed][${request.failure()?.errorText}] ${request.url()}`);
+        });
     } else {
-      throw new Error('Logging not yet supported for playwright or selenium');
+      throw new Error('Logging not yet supported for selenium');
     }
   }
 
