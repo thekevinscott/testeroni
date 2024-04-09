@@ -4,7 +4,7 @@ export const isValidBundlerName = (bundlerName: string): bundlerName is BundlerN
   return ['esbuild', 'webpack', 'umd', 'node',].includes(bundlerName);
 };
 export type { Bundler, } from './utils/Bundler.js';
-export { ESBuildBundler, ESBuildBundleOptions, } from './esbuild/EsbuildBundler.js';
+export { ESBuildBundler, ESBuildBundleOptions, } from './esbuild/ESBuildBundler.js';
 export { NodeBundler, NodeBundleOptions, } from './node/NodeBundler.js';
 export { UMDBundler, UMDBuildBundleOptions, } from './umd/UMDBundler.js';
 export { WebpackBundler, WebpackBundleOptions, } from './webpack/WebpackBundler.js';

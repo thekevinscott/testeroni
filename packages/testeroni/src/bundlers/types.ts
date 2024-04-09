@@ -1,4 +1,4 @@
-import { ESBuildBundleOptions, ESBuildBundler, } from './esbuild/EsbuildBundler.js';
+import { ESBuildBundleOptions, ESBuildBundler, } from './esbuild/ESBuildBundler.js';
 import { NodeBundleOptions, NodeBundler, } from './node/NodeBundler.js';
 import { UMDBuildBundleOptions, UMDBundler, } from './umd/UMDBundler.js';
 import { WebpackBundleOptions, WebpackBundler, } from './webpack/WebpackBundler.js';

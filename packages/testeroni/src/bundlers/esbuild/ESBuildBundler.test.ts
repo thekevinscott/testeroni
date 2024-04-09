@@ -11,7 +11,7 @@ import { withWorkingDir, } from '../utils/with-working-dir.js';
 import * as _withWorkingDir from '../utils/with-working-dir.js';
 import { writeFile, } from '../../common/fs.js';
 import * as _fs from '../../common/fs.js';
-import { DEFAULT_DEV_DEPENDENCIES, ESBuildBundler, NAME } from './EsbuildBundler.js';
+import { DEFAULT_DEV_DEPENDENCIES, ESBuildBundler, NAME } from './ESBuildBundler.js';
 import * as _pnpmInstall from '../../common/npm.js';
 import { pnpmInstall, } from '../../common/npm.js';
 import { writePackageJSON, } from '../utils/write-package-json.js';
