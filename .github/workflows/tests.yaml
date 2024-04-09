@@ -130,7 +130,11 @@ jobs:
         with:
           detached: true
 
-      - name: Install dependencies
+      - name: Install dependencies for package and build
+        working-directory: ./packages/testeroni
+        run: pnpm install && pnpm build
+
+      - name: Install dependencies for repo
         run: pnpm install
 
       - name: 'Integration Test'
