@@ -16,7 +16,8 @@ import {
 import type { SeleniumPage, } from './webdriver/selenium-page.js';
 // import { mockCdn, } from './mock-cdn.js';
 
-type Bundle = () => Promise<void>;
+// eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
+type Bundle = () => Promise<void | unknown>;
 
 const DEFAULT_PORT = 0;
 
