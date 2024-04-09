@@ -10,7 +10,7 @@ export function getBundler<N extends BundlerName>(name: N, outDir: string): Name
   return new BUNDLERS[name](outDir) as NameToBundlerMap[N];
 };
 
-export async function bundle(nameString: string, outDir: string, bundleOptions: Partial<SharedBundleOptions>): Promise<Bundler> {
+export async function bundle(nameString: string, outDir: string, bundleOptions: Partial<SharedBundleOptions> = {}): Promise<Bundler> {
   if (!isValidBundlerNameString(nameString)) {
     throw new Error(`Invalid bundler name: ${JSON.stringify(nameString)}, expected one of ${VALID_BUNDLER_NAMES.join(', ')}`);
   }
