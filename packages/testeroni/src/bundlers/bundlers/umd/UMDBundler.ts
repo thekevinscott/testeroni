@@ -1,17 +1,18 @@
 import path from 'path';
 import { Bundler, } from '../../utils/Bundler.js';
-import { writeFile, copyFile, } from '../../../common/fs.js';
+import { writeFile, copyFile, exists, } from '../../../common/fs.js';
 import { info, } from '../../../common/logger.js';
 import { getTemplate, } from '../../../common/get-template.js';
 import { DIST_ROOT, } from '../../utils/get-root.js';
-import type { BundleOptions, } from '../../types.js';
-import { withWorkingDir } from '../../utils/with-working-dir.js';
-import { UMDBuildBundleOptions } from './types.js';
+import { withWorkingDir, } from '../../utils/with-working-dir.js';
+import { UMDBuildBundleOptions, } from './types.js';
+export { UMDBuildBundleOptions, } from './types.js';
 
 /***
  * Constants
  */
 const UMD_ROOT_FOLDER = path.join(DIST_ROOT, './bundlers/bundlers/umd/');
+export const NAME = 'UMD Bundler';
 
 /***
  * Functions
@@ -31,29 +32,34 @@ const writeIndexHTML = async (outDir: string, {
   await writeFile(path.resolve(outDir, 'index.html'), contents);
 };
 
+const writeDependency = (dist: string) => async (file: string) => {
+  const target = path.join(dist, UMDBundler.getTargetFileName(file));
+  if (!await exists(file)) {
+    throw new Error(`File "${file}" does not exist`);
+  }
+  return copyFile(file, target);
+};
+
 export class UMDBundler extends Bundler {
   port = 0;
   usesRegistry = false;
 
   get name() { // skipcq: JS-0105
-    return 'UMD Bundler';
+    return NAME;
   }
 
   async bundle({
     title = this.name,
-    files: dependencies = [],
-    // workingDir,
+    files = [],
   }: UMDBuildBundleOptions) {
     const workingDir = this.outDir;
     info('Bundling UMD...');
     await withWorkingDir(async (dist) => {
       await Promise.all([
-        ...dependencies.map(async (pathToFile) => {
-          return copyFile(pathToFile, path.join(dist, UMDBundler.getTargetFileName(pathToFile)));
-        }),
+        ...files.map(writeDependency(dist)),
         writeIndexHTML(dist, {
           title,
-          dependencies: dependencies.map(UMDBundler.getTargetFileName),
+          dependencies: files.map(UMDBundler.getTargetFileName),
         }),
       ]);
 

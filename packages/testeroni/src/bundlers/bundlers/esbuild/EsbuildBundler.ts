@@ -10,9 +10,11 @@ import { writeIndexJS, } from '../../utils/write-index-js.js';
 import { writePackageJSON, } from '../../utils/write-package-json.js';
 import { DIST_ROOT, } from '../../utils/get-root.js';
 import { getHashedName, } from '../../../common/get-hashed-name.js';
-import type { BundleOptions, } from '../../types.js';
 import { withWorkingDir, } from '../../utils/with-working-dir.js';
-import { ESBuildBundleOptions } from './types.js';
+import { ESBuildBundleOptions, } from './types.js';
+import { withTmpDir, } from '../../../common/tmp-dir.js';
+import { readdirSync, } from 'fs';
+export { ESBuildBundleOptions, } from './types.js';
 
 /***
  * Constants
@@ -26,15 +28,21 @@ const getTemplate = (
   args: Parameters<typeof _getTemplate>[1] = {}
 ) => _getTemplate(path.resolve(ESBUILD_TEMPLATES_DIR, templateName), args);
 
+export const DEFAULT_DEV_DEPENDENCIES = {
+  "@babel/plugin-transform-modules-commonjs": "7.22.5",
+  "@babel/preset-typescript": "7.22.5",
+};
+export const NAME = 'ESBuild Bundler';
+
 /***
  * Functions
  */
 
-export class EsbuildBundler extends Bundler {
+export class ESBuildBundler extends Bundler {
   port = 0;
 
   get name() { // skipcq: JS-0105
-    return 'ESBuild Bundler';
+    return NAME;
   }
 
   static getHashedName(name: string) {
@@ -49,22 +57,23 @@ export class EsbuildBundler extends Bundler {
     devDependencies = {},
     type = 'module',
     workingDir,
+    additionalConfiguration,
   }: ESBuildBundleOptions) {
-    const dist = this.outDir;
+    const outDir = this.outDir;
 
-    let indexJSEntryFile;
-    let packageJSONPath;
+    let indexJSEntryFile: undefined | string;
+    let packageJSONPath: undefined | string;
     // const dist = path.resolve(this.outDir, this.dist);
 
     try {
       await withWorkingDir(async workingDir => {
         // this file produces the final js file
-        indexJSEntryFile = path.resolve(workingDir, 'index.js');
+        indexJSEntryFile = path.join(workingDir, 'index.js');
         // this file is used to npm install dependencies
-        packageJSONPath = path.resolve(workingDir, 'package.json');
+        packageJSONPath = path.join(workingDir, 'package.json');
+        // this file is the final html file served to the user, I believe it is _not_ transformed
+        const indexHTMLFile = path.join(outDir, 'index.html');
 
-        // this file is the final html file served to the user
-        const indexHTMLFile = path.join(dist, 'index.html');
         info('Bundling esbuild...');
         const dependencyKeys = Array.from(new Set(Object.keys({
           ...dependencies,
@@ -76,14 +85,13 @@ export class EsbuildBundler extends Bundler {
             dependencies,
             devDependencies: {
               ...devDependencies,
-              "@babel/plugin-transform-modules-commonjs": "7.22.5",
-              "@babel/preset-typescript": "7.22.5",
+              ...DEFAULT_DEV_DEPENDENCIES,
             },
           }),
           writeIndexJS(getTemplate, indexJSEntryFile, dependencyKeys.map(name => {
-            return [name, EsbuildBundler.getHashedName(name),];
+            return [name, ESBuildBundler.getHashedName(name),];
           })),
-          await writeFile(
+          writeFile(
             indexHTMLFile,
             await getTemplate('index.html.ejs', {
               title,
@@ -92,24 +100,25 @@ export class EsbuildBundler extends Bundler {
         ]);
 
         if (skipNpmInstall !== true) {
-          info(`PNPM Install to ${this.outDir}...`);
-          await pnpmInstall(this.outDir);
+          info(`PNPM Install to ${outDir}...`);
+          await pnpmInstall(outDir);
         }
 
         info(`Bundle the code for entry file ${indexJSEntryFile}`);
-        await esbuild({
-          entryPoints: [indexJSEntryFile,],
-          absWorkingDir: path.resolve(this.outDir),
+        const entryPoints: string[] = [indexJSEntryFile,];
+        await withTmpDir((absWorkingDir) => esbuild({
+          entryPoints,
+          absWorkingDir,
           bundle: true,
-          loader: {
-            '.png': 'file',
-          },
-          outdir: dist,
-        });
+          ...additionalConfiguration,
+          outdir: outDir,
+        }));
         info(`successfully bundled the code for entry file ${indexJSEntryFile}`);
 
-        info(`Bundled esbuild successfully to ${dist}`);
+        info(`Bundled esbuild successfully for entry file ${indexJSEntryFile} to ${outDir}`);
       }, workingDir);
+    } catch (err) {
+      console.error(err);
     } finally {
       if (keepWorkingFiles !== true) {
         await Promise.all([

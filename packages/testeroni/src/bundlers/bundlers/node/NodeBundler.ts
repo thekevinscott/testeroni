@@ -6,9 +6,9 @@ import { pnpmInstall, } from '../../../common/npm.js';
 import { info, } from '../../../common/logger.js';
 import { writePackageJSON, } from '../../utils/write-package-json.js';
 import { DIST_ROOT, } from '../../utils/get-root.js';
-import type { BundleOptions, } from '../../types.js';
-import { withWorkingDir } from '../../utils/with-working-dir.js';
-import { NodeBundleOptions } from './types.js';
+import { withWorkingDir, } from '../../utils/with-working-dir.js';
+import { NodeBundleOptions, } from './types.js';
+export { NodeBundleOptions, } from './types.js';
 
 /***
  * Constants
@@ -16,6 +16,7 @@ import { NodeBundleOptions } from './types.js';
 
 const NODE_ROOT_FOLDER = path.join(DIST_ROOT, './bundlers/bundlers/node/');
 const NODE_TEMPLATES_DIR = path.resolve(NODE_ROOT_FOLDER, '_templates');
+export const NAME = 'Node Bundler';
 
 const getTemplate = (
   templateName: string,
@@ -30,7 +31,7 @@ export class NodeBundler extends Bundler {
   port = 0;
 
   get name() { // skipcq: JS-0105
-    return 'node bundler';
+    return NAME;
   }
 
   async bundle({

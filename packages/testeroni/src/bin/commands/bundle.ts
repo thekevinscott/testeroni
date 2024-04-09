@@ -1,10 +1,10 @@
 import { Command, } from "commander";
 import { bundle, } from "../../bundlers/bundle.js";
-import { BUNDLERS, BundleOptions, BundlerName, } from "../../bundlers/types.js";
+import { BUNDLERS, SharedBundleOptions, BundlerName, } from "../../bundlers/types.js";
 
-function parseArgs(args: string): BundleOptions {
+function parseArgs(args: string): SharedBundleOptions {
   try {
-    return JSON.parse(args) as BundleOptions;
+    return JSON.parse(args) as SharedBundleOptions;
   } catch (err) {
     throw new Error(`Invalid args, expected a stringified json: ${args}`);
   }
