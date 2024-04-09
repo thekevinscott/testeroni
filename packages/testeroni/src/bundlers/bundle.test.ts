@@ -100,7 +100,7 @@ describe('checkBundleOptions', () => {
 });
 
 describe('bundle', () => {
-  test.only('it bundles', async () => {
+  test('it bundles', async () => {
     vi.mocked(isValidESBuildBundleOptions).mockReturnValue(true);
     const spy = vi.fn();
     class MockESBuildBundler {

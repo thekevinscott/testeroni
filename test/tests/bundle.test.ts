@@ -103,7 +103,7 @@ describe('bundle', () => {
   };
 
   describe('UMD', () => {
-    test.only('it bundles with correct title', async () => {
+    test('it bundles with correct title', async () => {
       const title = 'bar';
       await bundle(BundlerName.umd, outDir, {
         title,
