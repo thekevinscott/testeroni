@@ -3,14 +3,20 @@ import { isValidESBuildBundleOptions, } from './esbuild/types.js';
 import { isValidNodeBundleOptions, } from './node/types.js';
 import { isValidUMDBundleOptions, } from './umd/types.js';
 import { isValidWebpackBundleOptions, } from './webpack/types.js';
-import { BUNDLERS, BundlerName, NameToBundlerMap, SharedBundleOptions, } from './types.js';
+import { BUNDLERS, BundlerName, NameToBundlerMap, SharedBundleOptions, VALID_BUNDLER_NAMES, getBundlerNameStringAsBundlerName, isValidBundlerNameString, } from './types.js';
 import { Bundler, } from './utils/Bundler.js';
 
 export function getBundler<N extends BundlerName>(name: N, outDir: string): NameToBundlerMap[N] {
   return new BUNDLERS[name](outDir) as NameToBundlerMap[N];
 };
 
-export async function bundle<N extends BundlerName>(name: N, outDir: string, bundleOptions: Partial<SharedBundleOptions>): Promise<Bundler> {
+export async function bundle(nameString: string, outDir: string, bundleOptions: Partial<SharedBundleOptions>): Promise<Bundler> {
+  if (!isValidBundlerNameString(nameString)) {
+    throw new Error(`Invalid bundler name: ${JSON.stringify(nameString)}, expected one of ${VALID_BUNDLER_NAMES.join(', ')}`);
+  }
+
+  const name = getBundlerNameStringAsBundlerName(nameString);
+
   info(`Bundling ${name} to ${outDir}`);
   const bundler = getBundler(name, outDir);
   const start = performance.now();

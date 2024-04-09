@@ -3,6 +3,15 @@ import { NodeBundleOptions, NodeBundler, } from './node/NodeBundler.js';
 import { UMDBuildBundleOptions, UMDBundler, } from './umd/UMDBundler.js';
 import { WebpackBundleOptions, WebpackBundler, } from './webpack/WebpackBundler.js';
 
+export type BundlerNameString = 'esbuild' | 'webpack' | 'node' | 'umd';
+export const VALID_BUNDLER_NAMES = ['esbuild', 'webpack', 'node', 'umd',] as const;
+export const isValidBundlerNameString = (name: string): name is BundlerNameString => VALID_BUNDLER_NAMES.includes(name as BundlerNameString);
+export const getBundlerNameStringAsBundlerName = (name: BundlerNameString): BundlerName => ({
+  esbuild: BundlerName.esbuild,
+  webpack: BundlerName.webpack,
+  node: BundlerName.node,
+  umd: BundlerName.umd,
+})[name];
 export enum BundlerName {
   esbuild = 'esbuild',
   webpack = 'webpack',
