@@ -1,16 +1,16 @@
-import type { BundleOptions, } from "../../types.js";
+import type { SharedBundleOptions, } from "../../types.js";
 
-export type WebpackBuildBundleOptions = Pick<BundleOptions, 'workingDir' | 'type' | 'title' | 'dependencies' | 'devDependencies' | 'module' | 'skipNpmInstall' | 'keepWorkingFiles'>;
+export type WebpackBundleOptions = Pick<SharedBundleOptions, 'additionalConfiguration' | 'workingDir' | 'type' | 'title' | 'dependencies' | 'devDependencies' | 'module' | 'skipNpmInstall' | 'keepWorkingFiles'>;
 
-const validKeys = ['workingDir', 'type', 'title', 'dependencies', 'devDependencies', 'module', 'skipNpmInstall', 'keepWorkingFiles',];
-export const isValidWebpackBundleOptions = (options: Partial<BundleOptions>): options is WebpackBuildBundleOptions => {
+const validKeys = ['additionalConfiguration', 'workingDir', 'type', 'title', 'dependencies', 'devDependencies', 'module', 'skipNpmInstall', 'keepWorkingFiles',];
+export const isValidWebpackBundleOptions = (options: Partial<SharedBundleOptions>): options is WebpackBundleOptions => {
   const keys = Object.keys(options);
   if (keys.length === validKeys.length) {
     throw new Error('Invalid options for Webpack bundler');
   }
   for (const key of keys) {
     if (!validKeys.includes(key)) {
-      throw new Error(`Invalid key ${key} for Webpack bundler`);
+      throw new Error(`Invalid key "${key}" was passed to Webpack bundler. Valid keys are: ${validKeys.join(', ')}`);
     }
   }
   if (options.dependencies !== undefined && typeof options.dependencies !== 'object') {
@@ -18,6 +18,9 @@ export const isValidWebpackBundleOptions = (options: Partial<BundleOptions>): op
   }
   if (options.devDependencies !== undefined && typeof options.devDependencies !== 'object') {
     throw new Error('devDependencies must be an object');
+  }
+  if (options.additionalConfiguration !== undefined && typeof options.additionalConfiguration !== 'object') {
+    throw new Error('additionalConfiguration must be an object');
   }
   return true;
 };

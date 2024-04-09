@@ -11,9 +11,9 @@ import { writeIndexJS, } from '../../utils/write-index-js.js';
 import { writePackageJSON, } from '../../utils/write-package-json.js';
 import { DIST_ROOT, } from '../../utils/get-root.js';
 import { getHashedName, } from '../../../common/get-hashed-name.js';
-import type { BundleOptions, } from '../../types.js';
 import { withWorkingDir, } from '../../utils/with-working-dir.js';
-import { WebpackBuildBundleOptions } from './types.js';
+import { WebpackBundleOptions, } from './types.js';
+export { WebpackBundleOptions, } from './types.js';
 
 /***
  * Constants
@@ -21,6 +21,7 @@ import { WebpackBuildBundleOptions } from './types.js';
 
 const WEBPACK_ROOT_FOLDER = path.join(DIST_ROOT, './bundlers/bundlers/webpack/');
 const WEBPACK_TEMPLATES_DIR = path.resolve(WEBPACK_ROOT_FOLDER, '_templates');
+export const NAME = 'Webpack Bundler';
 
 /***
  * Functions
@@ -45,7 +46,7 @@ export class WebpackBundler extends Bundler {
   port = 0;
 
   get name() { // skipcq: JS-0105
-    return 'Webpack Bundler';
+    return NAME;
   }
 
   static getHashedName(name: string) {
@@ -60,10 +61,10 @@ export class WebpackBundler extends Bundler {
     devDependencies = {},
     type = 'module',
     workingDir,
-  }: WebpackBuildBundleOptions) {
+    additionalConfiguration,
+  }: WebpackBundleOptions) {
     // const dist = path.resolve(this.outDir, this.dist);
     // const dist = path.resolve(this.outDir);
-    const dist = this.outDir;
 
     let indexJSEntryFile;
     let packageJSONPath;
@@ -113,14 +114,17 @@ export class WebpackBundler extends Bundler {
           template: indexHTMLFile,
         });
 
+        // TODO: Support deep merge here for webpack
         const config: Configuration = {
           mode: 'production',
-          context: path.resolve(this.outDir),
+          context: workingDir,
           entry: indexJSEntryFile,
           stats: 'errors-only',
-          plugins: [htmlWebpackPlugin,],
+          plugins: [
+            htmlWebpackPlugin,
+          ],
           output: {
-            path: dist,
+            path: this.outDir,
           },
           module: {
             rules: [
@@ -130,6 +134,7 @@ export class WebpackBundler extends Bundler {
               },
             ],
           },
+          ...additionalConfiguration,
         };
 
         const compiler = webpack(config);

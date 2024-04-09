@@ -3,16 +3,19 @@ import { rimraf } from 'rimraf';
 import { beforeEach, describe, expect, test } from 'vitest';
 import {
   setLogLevel,
-  EsbuildBundler,
+  ESBuildBundler,
   UMDBundler,
   bundle,
   output,
   HttpServer,
   ServersideTestRunner,
+  BundlerName,
+  WebpackBundler,
+  writeFile,
 } from 'testeroni';
 import { makeTmpDir } from '../../packages/testeroni/src/common/tmp-dir.js';
 import path from 'path';
-import { existsSync, mkdir, readFile, writeFile, } from 'fs-extra';
+import { existsSync, mkdir, readFile, } from 'fs-extra';
 import { Browser, chromium } from 'playwright'
 
 setLogLevel('error');
@@ -21,7 +24,8 @@ const TMP = path.resolve(__dirname, '../tmp');
 
 describe('bundle', () => {
   const origLog = console.log;
-  let tmpDir: string;
+  let workingDir: string;
+  let outDir: string;
   let server: HttpServer;
   let browser: Browser;
 
@@ -29,8 +33,9 @@ describe('bundle', () => {
     name: string,
     version: string,
     type: 'commonjs' | 'module' = 'module',
+    targetDir: string = workingDir,
   ) => {
-    const root = path.resolve(tmpDir, 'node_modules', name);
+    const root = path.resolve(targetDir, 'node_modules', name);
     await mkdir(root, { recursive: true });
     return Promise.all([
       writeFile(path.resolve(root, 'package.json'), JSON.stringify({
@@ -44,6 +49,9 @@ describe('bundle', () => {
       ].join('\n'), 'utf-8'),
     ]);
   };
+  const makeFakeLocalPackages = (...packagesList: Record<string, string>[]) => Promise.all(Object.entries({
+    ...packagesList.reduce((acc, packages) => ({ ...acc, ...packages }), {}),
+  }).map(([name, version]) => makeFakeLocalPackage(name, version)));
 
   const startServer = async (dist: string, log = false) => {
     const server = new HttpServer({ dist });
@@ -71,57 +79,60 @@ describe('bundle', () => {
     console.log = vi.fn().mockImplementation((...msg) => {
       origLog(...msg);
     });
-    tmpDir = await makeTmpDir(TMP);
+    workingDir = await makeTmpDir(TMP);
+    outDir = await makeTmpDir(TMP);
   });
 
   afterEach(async () => {
     console.log = origLog;
     await Promise.all([
-      rimraf(tmpDir),
+      rimraf(workingDir),
+      rimraf(outDir),
       server ? server.close() : undefined,
       browser ? browser.close() : undefined,
     ]);
   });
 
-  const makeFakeLocalFileForUMD = (
+  const makeFakeLocalFileForUMD = async (
     name: string,
     contents: string,
-  ) => writeFile(path.resolve(tmpDir, name), contents);
+  ) => {
+    const target = path.resolve(workingDir, name);
+    await writeFile(target, contents);
+    return target;
+  };
 
   describe('UMD', () => {
     test('it bundles with correct title', async () => {
       const title = 'bar';
-      await bundle('umd', tmpDir, {
+      await bundle('umd', outDir, {
         title,
       });
-      expect(path.resolve(tmpDir, 'dist', 'index.html')).toMatchHTML({
+      expect(path.resolve(outDir, 'index.html')).toMatchHTML({
         title,
       });
     });
 
     test('it bundles with correct title and includes', async () => {
       const title = 'bar';
-      const files = ['bar', 'baz'];
-      await Promise.all(files.map(file => {
-        makeFakeLocalFileForUMD(file, file);
-      }));
-
-      const dependencies = files.map(file => path.resolve(tmpDir, file));
-      await bundle('umd', tmpDir, {
+      const fileNames = ['bar', 'baz'];
+      const files = await Promise.all(fileNames.map(file => makeFakeLocalFileForUMD(file, file)));
+      await bundle('umd', outDir, {
         title,
-        dependencies,
+        files,
       });
 
       // files should be copied over correctly
-      for (const file of files) {
-        const fileName = path.resolve(tmpDir, 'dist', UMDBundler.getTargetFileName(path.resolve(tmpDir, file)));
-        const contents = await readFile(fileName, 'utf-8');
-        expect(contents).toBe(file);
+      for (let i = 0; i < files.length; i++) {
+        const fileName = fileNames[i];
+        const filePath = files[i];
+        const contents = await readFile(filePath, 'utf-8');
+        expect(contents).toBe(fileName);
       }
 
-      expect(path.resolve(tmpDir, 'dist', 'index.html')).toMatchHTML({
+      expect(path.resolve(outDir, 'index.html')).toMatchHTML({
         title,
-        includes: dependencies.map(UMDBundler.getTargetFileName),
+        includes: files.map(UMDBundler.getTargetFileName),
       });
     });
   });
@@ -129,11 +140,13 @@ describe('bundle', () => {
   describe('ESBuild', () => {
     test('it bundles with correct title', async () => {
       const title = 'esbuildo';
-      await bundle('esbuild', tmpDir, {
+      const options = {
         title,
         skipNpmInstall: true,
-      });
-      expect(path.resolve(tmpDir, 'dist', 'index.html')).toMatchHTML({
+        workingDir,
+      };
+      await bundle(BundlerName.esbuild, outDir, options);
+      expect(path.resolve(outDir, 'index.html')).toMatchHTML({
         title,
       });
     });
@@ -148,27 +161,23 @@ describe('bundle', () => {
         'baz': '0.0.3',
         'qux': '0.0.4',
       };
-      await Promise.all(Object.entries({
-        ...dependencies,
-        ...devDependencies,
-      }).map(([name, version]) => {
-        return makeFakeLocalPackage(name, version);
-      }));
-      await bundle('esbuild', tmpDir, {
+      await makeFakeLocalPackages(dependencies, devDependencies)
+      await bundle(BundlerName.esbuild, outDir, {
         skipNpmInstall: true,
         keepWorkingFiles: true,
         title,
         dependencies,
         devDependencies,
+        workingDir,
       });
 
-      expect(path.resolve(tmpDir, 'package.json')).toMatchPackageJSON({
+      expect(path.resolve(workingDir, 'package.json')).toMatchPackageJSON({
         dependencies,
         devDependencies,
       });
     });
 
-    test('it includes the correct dependencies in the index.js that will be built', async () => {
+    test('it includes the correct dependencies in the workingDir/index.js that will be the input to the bundler', async () => {
       const title = 'esbuildoo';
       const dependencies = {
         'foo': '0.0.1',
@@ -178,33 +187,29 @@ describe('bundle', () => {
         'baz': '0.0.3',
         'qux': '0.0.4',
       };
-      await Promise.all(Object.entries({
-        ...dependencies,
-        ...devDependencies,
-      }).map(([name, version]) => {
-        return makeFakeLocalPackage(name, version);
-      }));
-      await bundle('esbuild', tmpDir, {
+      await makeFakeLocalPackages(dependencies, devDependencies)
+      await bundle(BundlerName.esbuild, outDir, {
         skipNpmInstall: true,
         keepWorkingFiles: true,
         title,
         dependencies,
         devDependencies,
+        workingDir,
       });
-      expect(path.resolve(tmpDir, 'index.js')).toMatchJS({
+      expect(path.resolve(workingDir, 'index.js')).toMatchJS({
         regExps: Object.keys({
           ...dependencies,
           ...devDependencies,
         }).reduce<RegExp[]>((acc, key) => {
           return acc.concat([
-            new RegExp(`import ${EsbuildBundler.getHashedName(key)} from '${key}';`),
-            new RegExp(`window\\['${key}'\\] = ${EsbuildBundler.getHashedName(key)};`),
+            new RegExp(`import ${ESBuildBundler.getHashedName(key)} from '${key}';`),
+            new RegExp(`window\\['${key}'\\] = ${ESBuildBundler.getHashedName(key)};`),
           ]);
         }, [])
       });
     });
 
-    test('it includes the correct dependencies in the index.js file built by esbuild', async () => {
+    test('it includes the correct dependencies in the outDir/index.js file output by the bundler', async () => {
       const title = 'esbuildoo';
       const dependencies = {
         'foo': '0.0.1',
@@ -214,21 +219,17 @@ describe('bundle', () => {
         'baz': '0.0.3',
         'qux': '0.0.4',
       };
-      await Promise.all(Object.entries({
-        ...dependencies,
-        ...devDependencies,
-      }).map(([name, version]) => {
-        return makeFakeLocalPackage(name, version);
-      }));
-      await bundle('esbuild', tmpDir, {
+      await makeFakeLocalPackages(dependencies, devDependencies)
+      await bundle(BundlerName.esbuild, outDir, {
         skipNpmInstall: true,
         keepWorkingFiles: true,
         title,
         dependencies,
         devDependencies,
+        workingDir,
       });
 
-      expect(path.resolve(tmpDir, 'dist', 'index.js')).toMatchJS({
+      expect(path.resolve(outDir, 'index.js')).toMatchJS({
         regExps: Object.keys({
           ...dependencies,
           ...devDependencies,
@@ -240,7 +241,6 @@ describe('bundle', () => {
       });
     });
 
-
     test('it bundles the correct node modules', async () => {
       const title = 'esbuildoo';
       const dependencies = {
@@ -251,23 +251,18 @@ describe('bundle', () => {
         'baz': '0.0.3',
         'qux': '0.0.4',
       };
-      await Promise.all(Object.entries({
-        ...dependencies,
-        ...devDependencies,
-      }).map(([name, version]) => {
-        return makeFakeLocalPackage(name, version);
-      }));
-      await bundle('esbuild', tmpDir, {
+      await makeFakeLocalPackages(dependencies, devDependencies)
+      await bundle(BundlerName.esbuild, outDir, {
         skipNpmInstall: true,
         keepWorkingFiles: true,
         title,
         dependencies,
         devDependencies,
+        workingDir,
       });
 
-      const dist = path.resolve(tmpDir, 'dist');
       const [url, browser] = await Promise.all([
-        startServer(dist),
+        startServer(outDir),
         getBrowser(),
       ]);
       const page = await browser.newPage();
@@ -277,15 +272,13 @@ describe('bundle', () => {
         ...devDependencies,
       });
       for (const key of keys) {
-        const value = await page.evaluate((key) => {
-          return window[key];
-        }, key);
+        const value = await page.evaluate((key) => window[key], key);
         expect(value).toBe(`c-${key}`);
       }
     });
 
     test('removes temp files by default', async () => {
-      const title = 'webpackery';
+      const title = 'esbuilderoo';
       const dependencies = {
         'foo': '0.0.1',
         'bar': '0.0.2',
@@ -294,35 +287,31 @@ describe('bundle', () => {
         'baz': '0.0.3',
         'qux': '0.0.4',
       };
-      await Promise.all(Object.entries({
-        ...dependencies,
-        ...devDependencies,
-      }).map(([name, version]) => {
-        return makeFakeLocalPackage(name, version);
-      }));
-      await bundle('esbuild', tmpDir, {
+      await makeFakeLocalPackages(dependencies, devDependencies)
+      await bundle('esbuild', outDir, {
         skipNpmInstall: true,
         title,
         dependencies,
         devDependencies,
+        workingDir,
       });
 
-      expect(existsSync(path.resolve(tmpDir, 'package.json'))).toBe(false);
-      expect(existsSync(path.resolve(tmpDir, 'index.js'))).toBe(false);
-      expect(existsSync(path.resolve(tmpDir, 'index.html'))).toBe(false);
-      expect(existsSync(path.resolve(tmpDir, 'dist/index.js'))).toBe(true);
-      expect(existsSync(path.resolve(tmpDir, 'dist/index.html'))).toBe(true);
+      expect(existsSync(path.resolve(workingDir, 'package.json'))).toBe(false);
+      expect(existsSync(path.resolve(workingDir, 'index.js'))).toBe(false);
+      expect(existsSync(path.resolve(workingDir, 'index.html'))).toBe(false);
+      expect(existsSync(path.resolve(outDir, 'index.js'))).toBe(true);
+      expect(existsSync(path.resolve(outDir, 'index.html'))).toBe(true);
     });
   });
 
   describe('Webpack', () => {
     test('it bundles with correct title', async () => {
       const title = 'webpacky';
-      await bundle('webpack', tmpDir, {
+      await bundle('webpack', workingDir, {
         title,
         skipNpmInstall: true,
       });
-      expect(path.resolve(tmpDir, 'dist', 'index.html')).toMatchHTML({
+      expect(path.resolve(workingDir, 'index.html')).toMatchHTML({
         title,
       });
     });
@@ -337,27 +326,23 @@ describe('bundle', () => {
         'baz': '0.0.3',
         'qux': '0.0.4',
       };
-      await Promise.all(Object.entries({
-        ...dependencies,
-        ...devDependencies,
-      }).map(([name, version]) => {
-        return makeFakeLocalPackage(name, version);
-      }));
-      await bundle('webpack', tmpDir, {
+      await makeFakeLocalPackages(dependencies, devDependencies)
+      await bundle('webpack', outDir, {
         skipNpmInstall: true,
         keepWorkingFiles: true,
         title,
         dependencies,
         devDependencies,
+        workingDir,
       });
 
-      expect(path.resolve(tmpDir, 'package.json')).toMatchPackageJSON({
+      expect(path.resolve(workingDir, 'package.json')).toMatchPackageJSON({
         dependencies,
         devDependencies,
       });
     });
 
-    test('it includes the correct dependencies in the index.js that will be built', async () => {
+    test('it includes the correct dependencies in the workingDir/index.js that will be provided to webpack', async () => {
       const title = 'webpackerinoo';
       const dependencies = {
         'foo': '0.0.1',
@@ -367,27 +352,23 @@ describe('bundle', () => {
         'baz': '0.0.3',
         'qux': '0.0.4',
       };
-      await Promise.all(Object.entries({
-        ...dependencies,
-        ...devDependencies,
-      }).map(([name, version]) => {
-        return makeFakeLocalPackage(name, version);
-      }));
-      await bundle('webpack', tmpDir, {
+      await makeFakeLocalPackages(dependencies, devDependencies)
+      await bundle('webpack', workingDir, {
         skipNpmInstall: true,
         keepWorkingFiles: true,
         title,
         dependencies,
         devDependencies,
+        workingDir,
       });
-      expect(path.resolve(tmpDir, 'index.js')).toMatchJS({
+      expect(path.resolve(workingDir, 'index.js')).toMatchJS({
         regExps: Object.keys({
           ...dependencies,
           ...devDependencies,
         }).reduce<RegExp[]>((acc, key) => {
           return acc.concat([
-            new RegExp(`import ${EsbuildBundler.getHashedName(key)} from '${key}';`),
-            new RegExp(`window\\['${key}'\\] = ${EsbuildBundler.getHashedName(key)};`),
+            new RegExp(`import ${WebpackBundler.getHashedName(key)} from '${key}';`),
+            new RegExp(`window\\['${key}'\\] = ${WebpackBundler.getHashedName(key)};`),
           ]);
         }, [])
       });
@@ -403,21 +384,17 @@ describe('bundle', () => {
         'baz-baz': '0.0.3',
         'qux-qux': '0.0.4',
       };
-      await Promise.all(Object.entries({
-        ...dependencies,
-        ...devDependencies,
-      }).map(([name, version]) => {
-        return makeFakeLocalPackage(name, version);
-      }));
-      await bundle('webpack', tmpDir, {
+      await makeFakeLocalPackages(dependencies, devDependencies)
+      await bundle('webpack', outDir, {
         skipNpmInstall: true,
         keepWorkingFiles: true,
         title,
         dependencies,
         devDependencies,
+        workingDir,
       });
 
-      expect(path.resolve(tmpDir, 'dist', 'main.js')).toMatchJS({
+      expect(path.resolve(outDir, 'main.js')).toMatchJS({
         regExps: Object.keys({
           ...dependencies,
           ...devDependencies,
@@ -439,23 +416,18 @@ describe('bundle', () => {
         'baz': '0.0.3',
         'qux': '0.0.4',
       };
-      await Promise.all(Object.entries({
-        ...dependencies,
-        ...devDependencies,
-      }).map(([name, version]) => {
-        return makeFakeLocalPackage(name, version);
-      }));
-      await bundle('webpack', tmpDir, {
+      await makeFakeLocalPackages(dependencies, devDependencies)
+      await bundle('webpack', outDir, {
         skipNpmInstall: true,
         keepWorkingFiles: true,
         title,
         dependencies,
         devDependencies,
+        workingDir,
       });
 
-      const dist = path.resolve(tmpDir, 'dist');
       const [url, browser] = await Promise.all([
-        startServer(dist),
+        startServer(outDir),
         getBrowser(),
       ]);
       const page = await browser.newPage();
@@ -465,9 +437,7 @@ describe('bundle', () => {
         ...devDependencies,
       });
       for (const key of keys) {
-        const value = await page.evaluate((key) => {
-          return window[key];
-        }, key);
+        const value = await page.evaluate((key) => window[key], key);
         expect(value).toBe(`c-${key}`);
       }
     });
@@ -482,24 +452,20 @@ describe('bundle', () => {
         'baz': '0.0.3',
         'qux': '0.0.4',
       };
-      await Promise.all(Object.entries({
-        ...dependencies,
-        ...devDependencies,
-      }).map(([name, version]) => {
-        return makeFakeLocalPackage(name, version);
-      }));
-      await bundle('webpack', tmpDir, {
+      await makeFakeLocalPackages(dependencies, devDependencies)
+      await bundle('webpack', outDir, {
         skipNpmInstall: true,
         title,
         dependencies,
         devDependencies,
+        workingDir,
       });
 
-      expect(existsSync(path.resolve(tmpDir, 'package.json'))).toBe(false);
-      expect(existsSync(path.resolve(tmpDir, 'index.js'))).toBe(false);
-      expect(existsSync(path.resolve(tmpDir, 'index.html'))).toBe(false);
-      expect(existsSync(path.resolve(tmpDir, 'dist/main.js'))).toBe(true);
-      expect(existsSync(path.resolve(tmpDir, 'dist/index.html'))).toBe(true);
+      expect(existsSync(path.resolve(workingDir, 'package.json'))).toBe(false);
+      expect(existsSync(path.resolve(workingDir, 'index.js'))).toBe(false);
+      expect(existsSync(path.resolve(workingDir, 'index.html'))).toBe(false);
+      expect(existsSync(path.resolve(outDir, 'main.js'))).toBe(true);
+      expect(existsSync(path.resolve(outDir, 'index.html'))).toBe(true);
     });
   });
 
@@ -513,13 +479,8 @@ describe('bundle', () => {
         'baz': '0.0.3',
         'qux': '0.0.4',
       };
-      await Promise.all(Object.entries({
-        ...dependencies,
-        ...devDependencies,
-      }).map(([name, version]) => {
-        return makeFakeLocalPackage(name, version);
-      }));
-      await bundle('node', tmpDir, {
+      await makeFakeLocalPackages(dependencies, devDependencies)
+      await bundle('node', outDir, {
         module: false,
         skipNpmInstall: true,
         keepWorkingFiles: true,
@@ -527,7 +488,7 @@ describe('bundle', () => {
         devDependencies,
       });
 
-      expect(path.resolve(tmpDir, 'package.json')).toMatchPackageJSON({
+      expect(path.resolve(outDir, 'package.json')).toMatchPackageJSON({
         type: 'commonjs',
         dependencies,
         devDependencies,
@@ -543,19 +504,14 @@ describe('bundle', () => {
         'baz': '0.0.3',
         'qux': '0.0.4',
       };
-      await Promise.all(Object.entries({
-        ...dependencies,
-        ...devDependencies,
-      }).map(([name, version]) => {
-        return makeFakeLocalPackage(name, version);
-      }));
-      await bundle('node', tmpDir, {
+      await makeFakeLocalPackages(dependencies, devDependencies)
+      await bundle('node', outDir, {
         skipNpmInstall: true,
         dependencies,
         devDependencies,
       });
 
-      expect(existsSync(path.resolve(tmpDir, 'package.json'))).toBe(false);
+      expect(existsSync(path.resolve(outDir, 'package.json'))).toBe(false);
     });
 
     test('can run a script against the node app', async () => {
@@ -571,9 +527,9 @@ describe('bundle', () => {
         ...dependencies,
         ...devDependencies,
       }).map(([name, version]) => {
-        return makeFakeLocalPackage(name, version, 'commonjs');
+        return makeFakeLocalPackage(name, version, 'commonjs', outDir);
       }));
-      await bundle('node', tmpDir, {
+      await bundle('node', outDir, {
         module: true,
         skipNpmInstall: true,
         keepWorkingFiles: true,
@@ -582,7 +538,7 @@ describe('bundle', () => {
       });
 
       const runner = new ServersideTestRunner({
-        cwd: tmpDir,
+        cwd: outDir,
       });
 
       const keys = Object.keys({
@@ -611,9 +567,9 @@ describe('bundle', () => {
         ...dependencies,
         ...devDependencies,
       }).map(([name, version]) => {
-        return makeFakeLocalPackage(name, version, 'commonjs');
+        return makeFakeLocalPackage(name, version, 'commonjs', outDir);
       }));
-      await bundle('node', tmpDir, {
+      await bundle('node', outDir, {
         module: true,
         skipNpmInstall: true,
         keepWorkingFiles: true,
@@ -622,7 +578,7 @@ describe('bundle', () => {
       });
 
       const runner = new ServersideTestRunner({
-        cwd: tmpDir,
+        cwd: outDir,
       });
 
       const keys = Object.keys({
