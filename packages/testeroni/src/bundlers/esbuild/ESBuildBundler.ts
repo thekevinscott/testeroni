@@ -19,7 +19,7 @@ export { ESBuildBundleOptions, } from './types.js';
  * Constants
  */
 
-const ESBUILD_ROOT_FOLDER = path.join(DIST_ROOT, './bundlers/bundlers/esbuild/');
+const ESBUILD_ROOT_FOLDER = path.join(DIST_ROOT, './bundlers/esbuild/');
 const ESBUILD_TEMPLATES_DIR = path.resolve(ESBUILD_ROOT_FOLDER, '_templates');
 
 const getTemplate = (

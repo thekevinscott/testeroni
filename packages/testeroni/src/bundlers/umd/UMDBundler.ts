@@ -11,7 +11,7 @@ export { UMDBuildBundleOptions, } from './types.js';
 /***
  * Constants
  */
-const UMD_ROOT_FOLDER = path.join(DIST_ROOT, './bundlers/bundlers/umd/');
+const UMD_ROOT_FOLDER = path.join(DIST_ROOT, './bundlers/umd/');
 export const NAME = 'UMD Bundler';
 
 /***

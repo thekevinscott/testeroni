@@ -14,7 +14,7 @@ export { NodeBundleOptions, } from './types.js';
  * Constants
  */
 
-const NODE_ROOT_FOLDER = path.join(DIST_ROOT, './bundlers/bundlers/node/');
+const NODE_ROOT_FOLDER = path.join(DIST_ROOT, './bundlers/node/');
 const NODE_TEMPLATES_DIR = path.resolve(NODE_ROOT_FOLDER, '_templates');
 export const NAME = 'Node Bundler';
 

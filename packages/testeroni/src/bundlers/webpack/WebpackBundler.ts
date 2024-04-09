@@ -19,7 +19,7 @@ export { WebpackBundleOptions, } from './types.js';
  * Constants
  */
 
-const WEBPACK_ROOT_FOLDER = path.join(DIST_ROOT, './bundlers/bundlers/webpack/');
+const WEBPACK_ROOT_FOLDER = path.join(DIST_ROOT, './bundlers/webpack/');
 const WEBPACK_TEMPLATES_DIR = path.resolve(WEBPACK_ROOT_FOLDER, '_templates');
 export const NAME = 'Webpack Bundler';
 
