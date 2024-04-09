@@ -1,12 +1,12 @@
 import path from 'path';
-import { Bundler, } from '../../utils/Bundler.js';
-import { removeIfExists, } from '../../utils/remove-if-exists.js';
-import { getTemplate as _getTemplate, } from '../../../common/get-template.js';
-import { pnpmInstall, } from '../../../common/npm.js';
-import { info, } from '../../../common/logger.js';
-import { writePackageJSON, } from '../../utils/write-package-json.js';
-import { DIST_ROOT, } from '../../utils/get-root.js';
-import { withWorkingDir, } from '../../utils/with-working-dir.js';
+import { Bundler, } from '../utils/Bundler.js';
+import { removeIfExists, } from '../utils/remove-if-exists.js';
+import { getTemplate as _getTemplate, } from '../../common/get-template.js';
+import { pnpmInstall, } from '../../common/npm.js';
+import { info, } from '../../common/logger.js';
+import { writePackageJSON, } from '../utils/write-package-json.js';
+import { DIST_ROOT, } from '../utils/get-root.js';
+import { withWorkingDir, } from '../utils/with-working-dir.js';
 import { NodeBundleOptions, } from './types.js';
 export { NodeBundleOptions, } from './types.js';
 

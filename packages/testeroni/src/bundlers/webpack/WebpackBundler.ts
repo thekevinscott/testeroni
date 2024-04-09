@@ -1,17 +1,17 @@
 import path from 'path';
-import { Bundler, } from '../../utils/Bundler.js';
+import { Bundler, } from '../utils/Bundler.js';
 import webpack, { Configuration, WebpackPluginInstance, } from 'webpack';
-import { removeIfExists, } from '../../utils/remove-if-exists.js';
+import { removeIfExists, } from '../utils/remove-if-exists.js';
 import HtmlWebpackPlugin from 'html-webpack-plugin';
-import { info, verbose, } from '../../../common/logger.js';
-import { getTemplate as _getTemplate, } from '../../../common/get-template.js';
-import { copyFile, } from '../../../common/fs.js';
-import { pnpmInstall, } from '../../../common/npm.js';
-import { writeIndexJS, } from '../../utils/write-index-js.js';
-import { writePackageJSON, } from '../../utils/write-package-json.js';
-import { DIST_ROOT, } from '../../utils/get-root.js';
-import { getHashedName, } from '../../../common/get-hashed-name.js';
-import { withWorkingDir, } from '../../utils/with-working-dir.js';
+import { info, verbose, } from '../../common/logger.js';
+import { getTemplate as _getTemplate, } from '../../common/get-template.js';
+import { copyFile, } from '../../common/fs.js';
+import { pnpmInstall, } from '../../common/npm.js';
+import { writeIndexJS, } from '../utils/write-index-js.js';
+import { writePackageJSON, } from '../utils/write-package-json.js';
+import { DIST_ROOT, } from '../utils/get-root.js';
+import { getHashedName, } from '../../common/get-hashed-name.js';
+import { withWorkingDir, } from '../utils/with-working-dir.js';
 import { WebpackBundleOptions, } from './types.js';
 export { WebpackBundleOptions, } from './types.js';
 

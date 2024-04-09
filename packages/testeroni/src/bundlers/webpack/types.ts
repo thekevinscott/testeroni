@@ -1,4 +1,4 @@
-import type { SharedBundleOptions, } from "../../types.js";
+import type { SharedBundleOptions, } from "../types.js";
 
 export type WebpackBundleOptions = Pick<SharedBundleOptions, 'additionalConfiguration' | 'workingDir' | 'type' | 'title' | 'dependencies' | 'devDependencies' | 'module' | 'skipNpmInstall' | 'keepWorkingFiles'>;
 

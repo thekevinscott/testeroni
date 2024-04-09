@@ -7,21 +7,21 @@ import {
 
 setLogLevel('error');
 
-import { withWorkingDir, } from '../../utils/with-working-dir.js';
-import * as _withWorkingDir from '../../utils/with-working-dir.js';
-import { writeFile, } from '../../../common/fs.js';
-import * as _fs from '../../../common/fs.js';
-import { DEFAULT_DEV_DEPENDENCIES, ESBuildBundler, NAME } from './ESBuildBundler.js';
-import * as _pnpmInstall from '../../../common/npm.js';
-import { pnpmInstall, } from '../../../common/npm.js';
-import { writePackageJSON, } from '../../utils/write-package-json.js';
-import * as _writePackageJSON from '../../utils/write-package-json.js';
-import { writeIndexJS, } from '../../utils/write-index-js.js';
-import * as _writeIndexJS from '../../utils/write-index-js.js';
+import { withWorkingDir, } from '../utils/with-working-dir.js';
+import * as _withWorkingDir from '../utils/with-working-dir.js';
+import { writeFile, } from '../../common/fs.js';
+import * as _fs from '../../common/fs.js';
+import { DEFAULT_DEV_DEPENDENCIES, ESBuildBundler, NAME } from './EsbuildBundler.js';
+import * as _pnpmInstall from '../../common/npm.js';
+import { pnpmInstall, } from '../../common/npm.js';
+import { writePackageJSON, } from '../utils/write-package-json.js';
+import * as _writePackageJSON from '../utils/write-package-json.js';
+import { writeIndexJS, } from '../utils/write-index-js.js';
+import * as _writeIndexJS from '../utils/write-index-js.js';
 import { build as esbuild, } from 'esbuild';
 import * as _esbuild from 'esbuild';
-import { info, } from '../../../common/logger.js';
-import * as _logger from '../../../common/logger.js';
+import { info, } from '../../common/logger.js';
+import * as _logger from '../../common/logger.js';
 
 vi.mock("../../../common/logger.js", async () => {
   const actual = await vi.importActual("../../../common/logger.js") as typeof _logger;

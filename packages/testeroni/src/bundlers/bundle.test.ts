@@ -11,8 +11,8 @@ vi.mock('../common/logger.js', async () => {
   };
 });
 
-import { isValidESBuildBundleOptions, } from './bundlers/esbuild/types.js';
-import * as _isValidESBuildBundleOptions from './bundlers/esbuild/types.js';
+import { isValidESBuildBundleOptions, } from './esbuild/types.js';
+import * as _isValidESBuildBundleOptions from './esbuild/types.js';
 
 vi.mock('./bundlers/esbuild/types.js', async () => {
   const actual = await vi.importActual('./bundlers/esbuild/types.js') as typeof _isValidESBuildBundleOptions;
@@ -22,8 +22,8 @@ vi.mock('./bundlers/esbuild/types.js', async () => {
   };
 });
 
-import { isValidNodeBundleOptions, } from './bundlers/node/types.js';
-import * as _isValidNodeBundleOptions from './bundlers/node/types.js';
+import { isValidNodeBundleOptions, } from './node/types.js';
+import * as _isValidNodeBundleOptions from './node/types.js';
 
 vi.mock('./bundlers/node/types.js', async () => {
   const actual = await vi.importActual('./bundlers/node/types.js') as typeof _isValidNodeBundleOptions;
@@ -33,8 +33,8 @@ vi.mock('./bundlers/node/types.js', async () => {
   };
 });
 
-import { isValidUMDBundleOptions, } from './bundlers/umd/types.js';
-import * as _isValidUMDBundleOptions from './bundlers/umd/types.js';
+import { isValidUMDBundleOptions, } from './umd/types.js';
+import * as _isValidUMDBundleOptions from './umd/types.js';
 
 vi.mock('./bundlers/umd/types.js', async () => {
   const actual = await vi.importActual('./bundlers/umd/types.js') as typeof _isValidUMDBundleOptions;
@@ -44,8 +44,8 @@ vi.mock('./bundlers/umd/types.js', async () => {
   };
 });
 
-import { isValidWebpackBundleOptions, } from './bundlers/webpack/types.js';
-import * as _isValidWebpackBundleOptions from './bundlers/webpack/types.js';
+import { isValidWebpackBundleOptions, } from './webpack/types.js';
+import * as _isValidWebpackBundleOptions from './webpack/types.js';
 
 vi.mock('./bundlers/webpack/types.js', async () => {
   const actual = await vi.importActual('./bundlers/webpack/types.js') as typeof _isValidWebpackBundleOptions;
