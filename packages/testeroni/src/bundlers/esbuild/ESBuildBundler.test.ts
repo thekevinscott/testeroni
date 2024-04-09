@@ -1,12 +1,5 @@
 import { afterEach, vi } from 'vitest';
 import { beforeEach, describe, expect, test } from 'vitest';
-import {
-  setLogLevel,
-  bundle,
-} from 'testeroni';
-
-setLogLevel('error');
-
 import { withWorkingDir, } from '../utils/with-working-dir.js';
 import * as _withWorkingDir from '../utils/with-working-dir.js';
 import { writeFile, } from '../../common/fs.js';
