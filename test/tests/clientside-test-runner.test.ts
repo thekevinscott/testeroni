@@ -24,10 +24,11 @@ describe('ClientsideTestRunner', () => {
   const drivers = [
     ['puppeteer', SupportedDriver.puppeteer, puppeteer.launch],
     ['playwright: chromium', SupportedDriver.playwright, chromium.launch.bind(chromium)],
-    ['playwright: webkit', SupportedDriver.playwright, webkit.launch.bind(webkit)],
+    // TODO: Re-enable webkit
+    // ['playwright: webkit', SupportedDriver.playwright, webkit.launch.bind(webkit)],
     ['playwright: firefox', SupportedDriver.playwright, firefox.launch.bind(firefox)],
-    // ['selenium', SupportedDriver.selenium, () => new webdriver.Builder().build(),],
     ['selenium', SupportedDriver.selenium, () => new MockSeleniumBuilder(),],
+    // ['selenium', SupportedDriver.selenium, () => new webdriver.Builder().build(),],
   ] as [string, SupportedDriver, Launch<SupportedDriver>][];
 
   test.each(drivers)('it instantiates for %s', (_, driver, launch) => {

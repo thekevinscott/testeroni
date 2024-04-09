@@ -1,4 +1,4 @@
-import type { SharedBundleOptions, } from "../../types.js";
+import type { SharedBundleOptions, } from "../types.js";
 
 export type UMDBuildBundleOptions = Pick<SharedBundleOptions, 'workingDir' | 'title' | 'files'>;
 

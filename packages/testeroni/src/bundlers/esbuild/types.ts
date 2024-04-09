@@ -1,4 +1,4 @@
-import type { SharedBundleOptions, } from "../../types.js";
+import type { SharedBundleOptions, } from "../types.js";
 
 export type ESBuildBundleOptions = Pick<SharedBundleOptions, 'additionalConfiguration' | 'workingDir' | 'type' | 'title' | 'dependencies' | 'devDependencies' | 'module' | 'skipNpmInstall' | 'keepWorkingFiles'>;
 const validKeys = ['additionalConfiguration', 'workingDir', 'type', 'title', 'dependencies', 'devDependencies', 'module', 'skipNpmInstall', 'keepWorkingFiles',];

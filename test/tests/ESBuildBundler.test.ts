@@ -38,7 +38,7 @@ vi.mock("../../packages/testeroni/src/common/fs.js", async () => {
 
 const TMP = path.resolve(__dirname, '../tmp');
 
-describe.only('ESBuildBundler', () => {
+describe('ESBuildBundler', () => {
   const origLog = console.log;
   let workingDir: string;
   let outDir: string;

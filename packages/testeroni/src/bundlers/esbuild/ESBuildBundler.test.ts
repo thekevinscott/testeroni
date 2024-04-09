@@ -1,30 +1,40 @@
 import { afterEach, vi } from 'vitest';
 import { beforeEach, describe, expect, test } from 'vitest';
-import {
-  setLogLevel,
-  bundle,
-} from 'testeroni';
-
-setLogLevel('error');
-
-import { withWorkingDir, } from '../../utils/with-working-dir.js';
-import * as _withWorkingDir from '../../utils/with-working-dir.js';
-import { writeFile, } from '../../../common/fs.js';
-import * as _fs from '../../../common/fs.js';
+import { withWorkingDir, } from '../utils/with-working-dir.js';
+import * as _withWorkingDir from '../utils/with-working-dir.js';
+import { writeFile, } from '../../common/fs.js';
+import * as _fs from '../../common/fs.js';
 import { DEFAULT_DEV_DEPENDENCIES, ESBuildBundler, NAME } from './ESBuildBundler.js';
-import * as _pnpmInstall from '../../../common/npm.js';
-import { pnpmInstall, } from '../../../common/npm.js';
-import { writePackageJSON, } from '../../utils/write-package-json.js';
-import * as _writePackageJSON from '../../utils/write-package-json.js';
-import { writeIndexJS, } from '../../utils/write-index-js.js';
-import * as _writeIndexJS from '../../utils/write-index-js.js';
+import * as _pnpmInstall from '../../common/npm.js';
+import { pnpmInstall, } from '../../common/npm.js';
+import { writePackageJSON, } from '../utils/write-package-json.js';
+import * as _writePackageJSON from '../utils/write-package-json.js';
+import { writeIndexJS, } from '../utils/write-index-js.js';
+import * as _writeIndexJS from '../utils/write-index-js.js';
 import { build as esbuild, } from 'esbuild';
 import * as _esbuild from 'esbuild';
-import { info, } from '../../../common/logger.js';
-import * as _logger from '../../../common/logger.js';
+import { info, } from '../../common/logger.js';
+import * as _logger from '../../common/logger.js';
+import { makeTmpDir } from '../../common/tmp-dir.js';
+import path from 'path';
+import { rimraf } from 'rimraf';
+// import { getTemplate, } from '../../common/get-template.js';
+import * as _getTemplate from '../../common/get-template.js';
 
-vi.mock("../../../common/logger.js", async () => {
-  const actual = await vi.importActual("../../../common/logger.js") as typeof _logger;
+vi.mock('../../common/get-template.js', async () => {
+  const actual = await vi.importActual('../../common/get-template.js') as typeof _getTemplate;
+  return {
+    ...actual,
+    getTemplate: vi.fn().mockImplementation(async (templateName, args) => {
+      return actual.getTemplate(templateName.replace('dist', 'src'), args);
+    }),
+  };
+});
+
+const TMP = path.resolve(__dirname, '../../../../../', 'tmp');
+
+vi.mock("../../common/logger.js", async () => {
+  const actual = await vi.importActual("../../common/logger.js") as typeof _logger;
   return {
     ...actual,
     info: vi.fn(),
@@ -39,8 +49,8 @@ vi.mock("esbuild", async () => {
   };
 });
 
-vi.mock("../../utils/with-working-dir.js", async () => {
-  const actual = await vi.importActual("../../utils/with-working-dir.js") as typeof _withWorkingDir;
+vi.mock("../utils/with-working-dir.js", async () => {
+  const actual = await vi.importActual("../utils/with-working-dir.js") as typeof _withWorkingDir;
   const withWorkingDirFn: typeof withWorkingDir = vi.fn().mockImplementation(async (cb, workingDir = '/tmp/folder/not/set') => {
     await cb(workingDir);
   });
@@ -50,31 +60,31 @@ vi.mock("../../utils/with-working-dir.js", async () => {
   };
 });
 
-vi.mock("../../../common/fs.js", async () => {
-  const actual = await vi.importActual("../../../common/fs.js") as typeof _fs;
+vi.mock("../../common/fs.js", async () => {
+  const actual = await vi.importActual("../../common/fs.js") as typeof _fs;
   return {
     ...actual,
     writeFile: vi.fn(),
   };
 });
 
-vi.mock("../../../common/npm.js", async () => {
-  const actual = await vi.importActual("../../../common/npm.js") as typeof _pnpmInstall;
+vi.mock("../../common/npm.js", async () => {
+  const actual = await vi.importActual("../../common/npm.js") as typeof _pnpmInstall;
   return {
     ...actual,
     pnpmInstall: vi.fn(),
   };
 });
 
-vi.mock("../../utils/write-package-json.js", async () => {
-  const actual = await vi.importActual("../../utils/write-package-json.js") as typeof _writePackageJSON;
+vi.mock("../utils/write-package-json.js", async () => {
+  const actual = await vi.importActual("../utils/write-package-json.js") as typeof _writePackageJSON;
   return {
     ...actual,
     writePackageJSON: vi.fn(),
   };
 });
-vi.mock("../../utils/write-index-js.js", async () => {
-  const actual = await vi.importActual("../../utils/write-index-js.js") as typeof _writeIndexJS;
+vi.mock("../utils/write-index-js.js", async () => {
+  const actual = await vi.importActual("../utils/write-index-js.js") as typeof _writeIndexJS;
   return {
     ...actual,
     writeIndexJS: vi.fn(),
@@ -82,35 +92,48 @@ vi.mock("../../utils/write-index-js.js", async () => {
 });
 
 describe('ESBuildBundler', () => {
-  afterEach(() => {
+  let workingDir: string;
+  let outDir: string;
+
+  beforeEach(async () => {
+    workingDir = await makeTmpDir(TMP);
+    outDir = await makeTmpDir(TMP);
+  });
+
+  afterEach(async () => {
     vi.clearAllMocks();
+
+    await Promise.all([
+      rimraf(workingDir),
+      rimraf(outDir),
+    ]);
   });
 
   test('it instantiates', () => {
-    const bundler = new ESBuildBundler('./dist');
+    const bundler = new ESBuildBundler(outDir);
     expect(bundler.name).toBe(NAME);
   });
 
   test('logs various stuff', async () => {
-    const bundler = new ESBuildBundler('./dist');
+    const bundler = new ESBuildBundler(outDir);
     await bundler.bundle({
-      workingDir: '/tmp2'
+      workingDir,
     });
 
     expect(info).toHaveBeenCalledTimes(5);
   });
 
   test('passes working dir if provided', async () => {
-    const bundler = new ESBuildBundler('./dist');
+    const bundler = new ESBuildBundler(outDir);
     await bundler.bundle({
-      workingDir: '/tmp2'
+      workingDir,
     });
 
-    expect(withWorkingDir).toHaveBeenCalledWith(expect.any(Function), '/tmp2');
+    expect(withWorkingDir).toHaveBeenCalledWith(expect.any(Function), workingDir);
   });
 
   test('passes undefined working dir if not provided', async () => {
-    const bundler = new ESBuildBundler('./dist');
+    const bundler = new ESBuildBundler(outDir);
     await bundler.bundle({
     });
 
@@ -118,12 +141,12 @@ describe('ESBuildBundler', () => {
   });
 
   test('calls writePackageJSON with correct working dir', async () => {
-    const bundler = new ESBuildBundler('./dist');
+    const bundler = new ESBuildBundler(outDir);
     await bundler.bundle({
-      workingDir: '/tmp2'
+      workingDir,
     });
 
-    expect(writePackageJSON).toHaveBeenCalledWith(expect.any(Function), '/tmp2/package.json', {
+    expect(writePackageJSON).toHaveBeenCalledWith(expect.any(Function), `${workingDir}/package.json`, {
       type: 'module',
       dependencies: {},
       devDependencies: {
@@ -133,7 +156,7 @@ describe('ESBuildBundler', () => {
   });
 
   test('calls writePackageJSON with deps and dev deps', async () => {
-    const bundler = new ESBuildBundler('./dist');
+    const bundler = new ESBuildBundler(outDir);
     const dependencies = {
       'foo': '1.2.3',
       'foo2': '2.3.4',
@@ -143,7 +166,7 @@ describe('ESBuildBundler', () => {
       'bar2': '2.3.4',
     };
     await bundler.bundle({
-      workingDir: '/tmp2',
+      workingDir,
       dependencies,
       devDependencies: {
         ...Object.keys(DEFAULT_DEV_DEPENDENCIES).reduce((obj, dep) => {
@@ -156,7 +179,7 @@ describe('ESBuildBundler', () => {
       },
     });
 
-    expect(writePackageJSON).toHaveBeenCalledWith(expect.any(Function), '/tmp2/package.json', {
+    expect(writePackageJSON).toHaveBeenCalledWith(expect.any(Function), `${workingDir}/package.json`, {
       type: 'module',
       dependencies,
       devDependencies: {
@@ -167,16 +190,16 @@ describe('ESBuildBundler', () => {
   });
 
   test('calls writeIndexJS with correct working dir', async () => {
-    const bundler = new ESBuildBundler('./dist');
+    const bundler = new ESBuildBundler(outDir);
     await bundler.bundle({
-      workingDir: '/tmp2'
+      workingDir,
     });
 
-    expect(writeIndexJS).toHaveBeenCalledWith(expect.any(Function), '/tmp2/index.js', []);
+    expect(writeIndexJS).toHaveBeenCalledWith(expect.any(Function), `${workingDir}/index.js`, []);
   });
 
   test('calls writeIndexJS with correct working dir and dependencies', async () => {
-    const bundler = new ESBuildBundler('./dist');
+    const bundler = new ESBuildBundler(outDir);
     const dependencies = {
       'foo': '1.2.3',
       'foo2': '2.3.4',
@@ -186,7 +209,7 @@ describe('ESBuildBundler', () => {
       'bar2': '2.3.4',
     };
     await bundler.bundle({
-      workingDir: '/tmp2',
+      workingDir,
       dependencies,
       devDependencies: {
         ...Object.keys(DEFAULT_DEV_DEPENDENCIES).reduce((obj, dep) => {
@@ -199,7 +222,7 @@ describe('ESBuildBundler', () => {
       },
     });
 
-    expect(writeIndexJS).toHaveBeenCalledWith(expect.any(Function), '/tmp2/index.js', [
+    expect(writeIndexJS).toHaveBeenCalledWith(expect.any(Function), `${workingDir}/index.js`, [
       'foo',
       'foo2',
       ...Object.keys(DEFAULT_DEV_DEPENDENCIES),
@@ -209,11 +232,10 @@ describe('ESBuildBundler', () => {
   });
 
   test('calls writeFile with correct working dir and title', async () => {
-    const outDir = 'dist';
     const bundler = new ESBuildBundler(outDir);
     const title = 'FOO BAR';
     await bundler.bundle({
-      workingDir: '/tmp2',
+      workingDir,
       title,
     });
 
@@ -221,11 +243,10 @@ describe('ESBuildBundler', () => {
   });
 
   test('skips pnpm install if specified', async () => {
-    const outDir = 'dist';
     const bundler = new ESBuildBundler(outDir);
     const title = 'FOO BAR';
     await bundler.bundle({
-      workingDir: '/tmp2',
+      workingDir,
       title,
       skipNpmInstall: true,
     });
@@ -234,11 +255,10 @@ describe('ESBuildBundler', () => {
   });
 
   test('does not skip pnpm install by default', async () => {
-    const outDir = 'dist';
     const bundler = new ESBuildBundler(outDir);
     const title = 'FOO BAR';
     await bundler.bundle({
-      workingDir: '/tmp2',
+      workingDir,
       title,
     });
 
@@ -246,8 +266,7 @@ describe('ESBuildBundler', () => {
   });
 
   test('bundles', async () => {
-    const outdir = '/dist';
-    const bundler = new ESBuildBundler(outdir);
+    const bundler = new ESBuildBundler(outDir);
     const title = 'FOO BAR';
     const additionalConfiguration = {
       loader: {
@@ -255,16 +274,16 @@ describe('ESBuildBundler', () => {
       },
     };
     await bundler.bundle({
-      workingDir: '/tmp2',
+      workingDir,
       title,
       additionalConfiguration,
     });
 
     expect(esbuild).toHaveBeenCalledWith(expect.objectContaining({
-      entryPoints: ['/tmp2/index.js'],
+      entryPoints: [`${workingDir}/index.js`],
       absWorkingDir: expect.any(String),
       bundle: true,
-      outdir,
+      outdir: outDir,
       ...additionalConfiguration,
     }));
   });

@@ -1,17 +1,17 @@
 import path from 'path';
-import { Bundler, } from '../../utils/Bundler.js';
-import { writeFile, copyFile, exists, } from '../../../common/fs.js';
-import { info, } from '../../../common/logger.js';
-import { getTemplate, } from '../../../common/get-template.js';
-import { DIST_ROOT, } from '../../utils/get-root.js';
-import { withWorkingDir, } from '../../utils/with-working-dir.js';
+import { Bundler, } from '../utils/Bundler.js';
+import { writeFile, copyFile, exists, } from '../../common/fs.js';
+import { info, } from '../../common/logger.js';
+import { getTemplate, } from '../../common/get-template.js';
+import { DIST_ROOT, } from '../utils/get-root.js';
+import { withWorkingDir, } from '../utils/with-working-dir.js';
 import { UMDBuildBundleOptions, } from './types.js';
 export { UMDBuildBundleOptions, } from './types.js';
 
 /***
  * Constants
  */
-const UMD_ROOT_FOLDER = path.join(DIST_ROOT, './bundlers/bundlers/umd/');
+const UMD_ROOT_FOLDER = path.join(DIST_ROOT, './bundlers/umd/');
 export const NAME = 'UMD Bundler';
 
 /***

@@ -105,7 +105,7 @@ describe('bundle', () => {
   describe('UMD', () => {
     test('it bundles with correct title', async () => {
       const title = 'bar';
-      await bundle('umd', outDir, {
+      await bundle(BundlerName.umd, outDir, {
         title,
       });
       expect(path.resolve(outDir, 'index.html')).toMatchHTML({
@@ -117,7 +117,7 @@ describe('bundle', () => {
       const title = 'bar';
       const fileNames = ['bar', 'baz'];
       const files = await Promise.all(fileNames.map(file => makeFakeLocalFileForUMD(file, file)));
-      await bundle('umd', outDir, {
+      await bundle(BundlerName.umd, outDir, {
         title,
         files,
       });

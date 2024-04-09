@@ -1,7 +1,7 @@
-import { ESBuildBundleOptions, ESBuildBundler, } from './bundlers/esbuild/ESBuildBundler.js';
-import { NodeBundleOptions, NodeBundler, } from './bundlers/node/NodeBundler.js';
-import { UMDBuildBundleOptions, UMDBundler, } from './bundlers/umd/UMDBundler.js';
-import { WebpackBundleOptions, WebpackBundler, } from './bundlers/webpack/WebpackBundler.js';
+import { ESBuildBundleOptions, ESBuildBundler, } from './esbuild/ESBuildBundler.js';
+import { NodeBundleOptions, NodeBundler, } from './node/NodeBundler.js';
+import { UMDBuildBundleOptions, UMDBundler, } from './umd/UMDBundler.js';
+import { WebpackBundleOptions, WebpackBundler, } from './webpack/WebpackBundler.js';
 
 export enum BundlerName {
   esbuild = 'esbuild',

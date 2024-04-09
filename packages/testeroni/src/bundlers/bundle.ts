@@ -1,8 +1,8 @@
 import { info, } from '../common/logger.js';
-import { isValidESBuildBundleOptions, } from './bundlers/esbuild/types.js';
-import { isValidNodeBundleOptions, } from './bundlers/node/types.js';
-import { isValidUMDBundleOptions, } from './bundlers/umd/types.js';
-import { isValidWebpackBundleOptions, } from './bundlers/webpack/types.js';
+import { isValidESBuildBundleOptions, } from './esbuild/types.js';
+import { isValidNodeBundleOptions, } from './node/types.js';
+import { isValidUMDBundleOptions, } from './umd/types.js';
+import { isValidWebpackBundleOptions, } from './webpack/types.js';
 import { BUNDLERS, BundlerName, NameToBundlerMap, SharedBundleOptions, } from './types.js';
 import { Bundler, } from './utils/Bundler.js';
 
