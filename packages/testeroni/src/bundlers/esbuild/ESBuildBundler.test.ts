@@ -18,6 +18,18 @@ import * as _logger from '../../common/logger.js';
 import { makeTmpDir } from '../../common/tmp-dir.js';
 import path from 'path';
 import { rimraf } from 'rimraf';
+// import { getTemplate, } from '../../common/get-template.js';
+import * as _getTemplate from '../../common/get-template.js';
+
+vi.mock('../../common/get-template.js', async () => {
+  const actual = await vi.importActual('../../common/get-template.js') as typeof _getTemplate;
+  return {
+    ...actual,
+    getTemplate: vi.fn().mockImplementation(async (templateName, args) => {
+      return actual.getTemplate(templateName.replace('dist', 'src'), args);
+    }),
+  };
+});
 
 const TMP = path.resolve(__dirname, '../../../../../', 'tmp');
 
