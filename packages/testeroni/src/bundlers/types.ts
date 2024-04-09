@@ -1,3 +1,4 @@
+import { PackageManager } from '../common/npm.js';
 import { ESBuildBundleOptions, ESBuildBundler, } from './esbuild/ESBuildBundler.js';
 import { NodeBundleOptions, NodeBundler, } from './node/NodeBundler.js';
 import { UMDBuildBundleOptions, UMDBundler, } from './umd/UMDBundler.js';
@@ -31,13 +32,15 @@ export interface SharedBundleOptions {
   workingDir?: string;
   title?: string;
   module?: boolean;
-  skipNpmInstall?: boolean;
+  skipPackageInstall?: boolean;
   keepWorkingFiles?: boolean;
   files?: string[];
   type?: 'module' | 'commonjs';
   dependencies?: Record<string, string>;
   devDependencies?: Record<string, string>;
   additionalConfiguration?: Record<string, unknown>;
+  isPackageInstallSilent?: boolean;
+  packageManager?: PackageManager;
 }
 
 export type BundleOptions<N extends BundlerName> =

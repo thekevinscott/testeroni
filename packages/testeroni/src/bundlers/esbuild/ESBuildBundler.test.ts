@@ -5,8 +5,8 @@ import * as _withWorkingDir from '../utils/with-working-dir.js';
 import { writeFile, } from '../../common/fs.js';
 import * as _fs from '../../common/fs.js';
 import { DEFAULT_DEV_DEPENDENCIES, ESBuildBundler, NAME } from './ESBuildBundler.js';
-import * as _pnpmInstall from '../../common/npm.js';
-import { pnpmInstall, } from '../../common/npm.js';
+import * as _installPackages from '../../common/npm.js';
+import { installPackages, } from '../../common/npm.js';
 import { writePackageJSON, } from '../utils/write-package-json.js';
 import * as _writePackageJSON from '../utils/write-package-json.js';
 import { writeIndexJS, } from '../utils/write-index-js.js';
@@ -67,10 +67,10 @@ vi.mock("../../common/fs.js", async () => {
 });
 
 vi.mock("../../common/npm.js", async () => {
-  const actual = await vi.importActual("../../common/npm.js") as typeof _pnpmInstall;
+  const actual = await vi.importActual("../../common/npm.js") as typeof _installPackages;
   return {
     ...actual,
-    pnpmInstall: vi.fn(),
+    installPackages: vi.fn(),
   };
 });
 
@@ -246,10 +246,10 @@ describe('ESBuildBundler', () => {
     await bundler.bundle({
       workingDir,
       title,
-      skipNpmInstall: true,
+      skipPackageInstall: true,
     });
 
-    expect(pnpmInstall).not.toHaveBeenCalled();
+    expect(installPackages).not.toHaveBeenCalled();
   });
 
   test('does not skip pnpm install by default', async () => {
@@ -260,7 +260,7 @@ describe('ESBuildBundler', () => {
       title,
     });
 
-    expect(pnpmInstall).toHaveBeenCalledTimes(1);
+    expect(installPackages).toHaveBeenCalledTimes(1);
   });
 
   test('bundles', async () => {

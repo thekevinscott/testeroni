@@ -6,7 +6,7 @@ import HtmlWebpackPlugin from 'html-webpack-plugin';
 import { info, verbose, } from '../../common/logger.js';
 import { getTemplate as _getTemplate, } from '../../common/get-template.js';
 import { copyFile, } from '../../common/fs.js';
-import { pnpmInstall, } from '../../common/npm.js';
+import { installPackages, } from '../../common/npm.js';
 import { writeIndexJS, } from '../utils/write-index-js.js';
 import { writePackageJSON, } from '../utils/write-package-json.js';
 import { DIST_ROOT, } from '../utils/get-root.js';
@@ -55,13 +55,15 @@ export class WebpackBundler extends Bundler {
 
   async bundle({
     keepWorkingFiles,
-    skipNpmInstall,
+    skipPackageInstall,
     title = this.name,
     dependencies = {},
     devDependencies = {},
     type = 'module',
     workingDir,
     additionalConfiguration,
+    isPackageInstallSilent,
+    packageManager,
   }: WebpackBundleOptions) {
     // const dist = path.resolve(this.outDir, this.dist);
     // const dist = path.resolve(this.outDir);
@@ -102,9 +104,12 @@ export class WebpackBundler extends Bundler {
           ),
         ]);
 
-        if (skipNpmInstall !== true) {
+        if (skipPackageInstall !== true) {
           info(`PNPM Install to ${this.outDir}...`);
-          await pnpmInstall(this.outDir);
+          await installPackages(this.outDir, {
+            isSilent: isPackageInstallSilent,
+            packageManager,
+          });
         }
 
         info(`Bundle the code for entry file ${indexJSEntryFile}`);

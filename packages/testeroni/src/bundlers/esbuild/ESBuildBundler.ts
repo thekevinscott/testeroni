@@ -3,7 +3,7 @@ import { build as esbuild, } from 'esbuild';
 import { Bundler, } from '../utils/Bundler.js';
 import { removeIfExists, } from '../utils/remove-if-exists.js';
 import { getTemplate as _getTemplate, } from '../../common/get-template.js';
-import { pnpmInstall, } from '../../common/npm.js';
+import { installPackages, } from '../../common/npm.js';
 import { writeFile, } from '../../common/fs.js';
 import { info, } from '../../common/logger.js';
 import { writeIndexJS, } from '../utils/write-index-js.js';
@@ -49,7 +49,7 @@ export class ESBuildBundler extends Bundler {
   }
 
   async bundle({
-    skipNpmInstall,
+    skipPackageInstall,
     keepWorkingFiles,
     title = this.name,
     dependencies = {},
@@ -57,6 +57,8 @@ export class ESBuildBundler extends Bundler {
     type = 'module',
     workingDir,
     additionalConfiguration,
+    isPackageInstallSilent,
+    packageManager,
   }: ESBuildBundleOptions) {
     const outDir = this.outDir;
 
@@ -98,9 +100,12 @@ export class ESBuildBundler extends Bundler {
           ),
         ]);
 
-        if (skipNpmInstall !== true) {
+        if (skipPackageInstall !== true) {
           info(`PNPM Install to ${outDir}...`);
-          await pnpmInstall(outDir);
+          await installPackages(outDir, {
+            isSilent: isPackageInstallSilent,
+            packageManager,
+          });
         }
 
         info(`Bundle the code for entry file ${indexJSEntryFile}`);

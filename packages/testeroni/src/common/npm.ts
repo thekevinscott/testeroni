@@ -35,10 +35,7 @@ export const runPackageCommand = (
 export const npmInstall = async (cwd: string, {
   isSilent = false,
   registryURL,
-}: {
-  isSilent?: boolean;
-  registryURL?: string;
-} = {}) => {
+}: InstallPackagesOptsNPM = {}) => {
   const logLevel = getLogLevel();
   const command = [
     'npm',
@@ -55,14 +52,16 @@ export const npmInstall = async (cwd: string, {
   await runPackageCommand(command, cwd, 'npm');
 };
 
-export const pnpmInstall = async (cwd: string, _opts = {}) => {
+export const pnpmInstall = async (cwd: string, {
+  isSilent = false,
+}: InstallPackagesOptsPNPM = {}) => {
   // const logLevel = getLogLevel();
   const command = [
     'pnpm',
     'install',
     '--ignore-scripts',
     '--fix-lockfile',
-    // isSilent ? '--silent' : '',
+    isSilent ? '--silent' : '',
     // '--no-fund',
     // '--no-audit',
     // '--no-package-lock',
@@ -73,6 +72,27 @@ export const pnpmInstall = async (cwd: string, _opts = {}) => {
   verbose(`${command.join(' ')} in ${cwd}`);
   await runPackageCommand(command, cwd, 'pnpm');
 
+};
+
+export type PackageManager = 'pnpm' | 'npm';
+interface InstallPackagesOptsPNPM {
+  isSilent?: boolean;
+}
+interface InstallPackagesOptsNPM {
+  isSilent?: boolean;
+  registryURL?: string;
+}
+type InstallPackagesOpts = InstallPackagesOptsPNPM | InstallPackagesOptsNPM;
+
+export async function installPackages(cwd: string, {
+  packageManager,
+  ...opts
+}: InstallPackagesOpts & { packageManager?: PackageManager } = {}) {
+  if (packageManager === 'npm') {
+    await pnpmInstall(cwd, opts);
+  } else {
+    await pnpmInstall(cwd, opts);
+  }
 };
 
 export const runPNPMCommand = (
