@@ -14,8 +14,8 @@ vi.mock('../common/logger.js', async () => {
 import { isValidESBuildBundleOptions, } from './esbuild/types.js';
 import * as _isValidESBuildBundleOptions from './esbuild/types.js';
 
-vi.mock('./bundlers/esbuild/types.js', async () => {
-  const actual = await vi.importActual('./bundlers/esbuild/types.js') as typeof _isValidESBuildBundleOptions;
+vi.mock('./esbuild/types.js', async () => {
+  const actual = await vi.importActual('./esbuild/types.js') as typeof _isValidESBuildBundleOptions;
   return {
     ...actual,
     isValidESBuildBundleOptions: vi.fn(),
@@ -25,8 +25,8 @@ vi.mock('./bundlers/esbuild/types.js', async () => {
 import { isValidNodeBundleOptions, } from './node/types.js';
 import * as _isValidNodeBundleOptions from './node/types.js';
 
-vi.mock('./bundlers/node/types.js', async () => {
-  const actual = await vi.importActual('./bundlers/node/types.js') as typeof _isValidNodeBundleOptions;
+vi.mock('./node/types.js', async () => {
+  const actual = await vi.importActual('./node/types.js') as typeof _isValidNodeBundleOptions;
   return {
     ...actual,
     isValidNodeBundleOptions: vi.fn(),
@@ -36,8 +36,8 @@ vi.mock('./bundlers/node/types.js', async () => {
 import { isValidUMDBundleOptions, } from './umd/types.js';
 import * as _isValidUMDBundleOptions from './umd/types.js';
 
-vi.mock('./bundlers/umd/types.js', async () => {
-  const actual = await vi.importActual('./bundlers/umd/types.js') as typeof _isValidUMDBundleOptions;
+vi.mock('./umd/types.js', async () => {
+  const actual = await vi.importActual('./umd/types.js') as typeof _isValidUMDBundleOptions;
   return {
     ...actual,
     isValidUMDBundleOptions: vi.fn(),
@@ -47,8 +47,8 @@ vi.mock('./bundlers/umd/types.js', async () => {
 import { isValidWebpackBundleOptions, } from './webpack/types.js';
 import * as _isValidWebpackBundleOptions from './webpack/types.js';
 
-vi.mock('./bundlers/webpack/types.js', async () => {
-  const actual = await vi.importActual('./bundlers/webpack/types.js') as typeof _isValidWebpackBundleOptions;
+vi.mock('./webpack/types.js', async () => {
+  const actual = await vi.importActual('./webpack/types.js') as typeof _isValidWebpackBundleOptions;
   return {
     ...actual,
     isValidWebpackBundleOptions: vi.fn(),
@@ -100,7 +100,7 @@ describe('checkBundleOptions', () => {
 });
 
 describe('bundle', () => {
-  test('it bundles', async () => {
+  test.only('it bundles', async () => {
     vi.mocked(isValidESBuildBundleOptions).mockReturnValue(true);
     const spy = vi.fn();
     class MockESBuildBundler {

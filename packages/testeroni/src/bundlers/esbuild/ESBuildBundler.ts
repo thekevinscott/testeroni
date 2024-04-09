@@ -13,7 +13,6 @@ import { getHashedName, } from '../../common/get-hashed-name.js';
 import { withWorkingDir, } from '../utils/with-working-dir.js';
 import { ESBuildBundleOptions, } from './types.js';
 import { withTmpDir, } from '../../common/tmp-dir.js';
-import { readdirSync, } from 'fs';
 export { ESBuildBundleOptions, } from './types.js';
 
 /***

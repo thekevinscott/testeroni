@@ -83,7 +83,7 @@ jobs:
         working-directory: ./packages/testeroni
         run: pnpm install
 
-      - name: 'Test'
+      - name: 'Unit Test'
         working-directory: ./packages/testeroni
         run: 'pnpm test'
 
@@ -133,7 +133,7 @@ jobs:
       - name: Install dependencies
         run: pnpm install
 
-      - name: 'Test'
+      - name: 'Integration Test'
         run: 'pnpm test'
 
   build:
@@ -168,10 +168,10 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-pnpm-store-
 
-      - name: Setup tmate session
-        uses: mxschmitt/action-tmate@v3
-        with:
-          detached: true
+      # - name: Setup tmate session
+      #   uses: mxschmitt/action-tmate@v3
+      #   with:
+      #     detached: true
 
       - name: Install dependencies
         working-directory: ./packages/testeroni
