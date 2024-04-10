@@ -1,8 +1,8 @@
 import { describe, test, expect } from 'vitest';
-import { refactorImports } from './refactor-imports.js';
+import { hoistImports } from './hoist-imports.js';
 describe('refactor-imports', () => {
   test('it hoists imports to top', () => {
-    expect(refactorImports(`
+    expect(hoistImports(`
     (async () => {
       const script = async function() {
           import Contortionist from 'contort';
