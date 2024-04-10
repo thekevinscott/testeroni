@@ -1,7 +1,7 @@
 import type { SharedBundleOptions, } from "../types.js";
 
-export type NodeBundleOptions = Pick<SharedBundleOptions, 'packageManager' | 'isPackageInstallSilent' | 'workingDir' | 'dependencies' | 'devDependencies' | 'module' | 'skipPackageInstall' | 'keepWorkingFiles'>;
-const validKeys = ['packageManager', 'isPackageInstallSilent', 'workingDir', 'dependencies', 'devDependencies', 'module', 'skipPackageInstall', 'keepWorkingFiles',];
+export type NodeBundleOptions = Pick<SharedBundleOptions, 'packageManager' | 'silentPackageInstall' | 'workingDir' | 'dependencies' | 'devDependencies' | 'module' | 'skipPackageInstall' | 'keepWorkingFiles'>;
+const validKeys = ['packageManager', 'silentPackageInstall', 'workingDir', 'dependencies', 'devDependencies', 'module', 'skipPackageInstall', 'keepWorkingFiles',];
 export const isValidNodeBundleOptions = (options: Partial<SharedBundleOptions>): options is NodeBundleOptions => {
   const keys = Object.keys(options);
   if (keys.length === validKeys.length) {

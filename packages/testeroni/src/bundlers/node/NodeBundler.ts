@@ -40,7 +40,7 @@ export class NodeBundler extends Bundler {
     dependencies = {},
     devDependencies = {},
     module = true,
-    isPackageInstallSilent,
+    silentPackageInstall,
     packageManager,
     // workingDir,
   }: NodeBundleOptions) {
@@ -61,7 +61,7 @@ export class NodeBundler extends Bundler {
         if (skipPackageInstall !== true) {
           info(`PNPM Install to ${workingDir}...`);
           await installPackages(workingDir, {
-            isSilent: isPackageInstallSilent,
+            isSilent: silentPackageInstall,
             packageManager,
           });
         }

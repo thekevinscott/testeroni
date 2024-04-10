@@ -1,7 +1,7 @@
 import type { SharedBundleOptions, } from "../types.js";
 
-export type ESBuildBundleOptions = Pick<SharedBundleOptions, 'packageManager' | 'isPackageInstallSilent' | 'additionalConfiguration' | 'workingDir' | 'type' | 'title' | 'dependencies' | 'devDependencies' | 'module' | 'skipPackageInstall' | 'keepWorkingFiles'>;
-const validKeys = ['packageManager', 'isPackageInstallSilent', 'additionalConfiguration', 'workingDir', 'type', 'title', 'dependencies', 'devDependencies', 'module', 'skipPackageInstall', 'keepWorkingFiles',];
+export type ESBuildBundleOptions = Pick<SharedBundleOptions, 'packageManager' | 'silentPackageInstall' | 'additionalConfiguration' | 'workingDir' | 'type' | 'title' | 'dependencies' | 'devDependencies' | 'module' | 'skipPackageInstall' | 'keepWorkingFiles'>;
+const validKeys = ['packageManager', 'silentPackageInstall', 'additionalConfiguration', 'workingDir', 'type', 'title', 'dependencies', 'devDependencies', 'module', 'skipPackageInstall', 'keepWorkingFiles',];
 export const isValidESBuildBundleOptions = (options: Partial<SharedBundleOptions>): options is ESBuildBundleOptions => {
   const keys = Object.keys(options);
   if (keys.length === validKeys.length) {
