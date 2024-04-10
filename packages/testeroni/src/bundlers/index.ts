@@ -1,8 +1,7 @@
-import { BundlerName, } from './types.js';
-export { BundlerName, } from './types.js';
-export const isValidBundlerName = (bundlerName: string): bundlerName is BundlerName => {
-  return ['esbuild', 'webpack', 'umd', 'node',].includes(bundlerName);
-};
+export {
+  BundleOptions,
+  BundlerName,
+} from './types.js';
 export type { Bundler, } from './utils/Bundler.js';
 export { ESBuildBundler, ESBuildBundleOptions, } from './esbuild/ESBuildBundler.js';
 export { NodeBundler, NodeBundleOptions, } from './node/NodeBundler.js';

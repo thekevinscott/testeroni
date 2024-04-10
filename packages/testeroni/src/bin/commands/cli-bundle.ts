@@ -1,6 +1,6 @@
 import { Command, } from "commander";
 import { bundle, } from "../../bundlers/bundle.js";
-import { BUNDLERS, SharedBundleOptions, BundlerName, BundlerNameString, VALID_BUNDLER_NAMES, } from "../../bundlers/types.js";
+import { SharedBundleOptions, } from "../../bundlers/types.js";
 
 function parseArgs(args: string): SharedBundleOptions {
   try {
@@ -11,16 +11,16 @@ function parseArgs(args: string): SharedBundleOptions {
 }
 
 async function main(outDir: string, {
-  bundlerName: name,
+  bundlerName,
   args,
 }: {
   bundlerName: string;
   args: string;
 }) {
-  if (!name) {
+  if (!bundlerName) {
     throw new Error('No bundler specified');
   }
-  await bundle(name, outDir, parseArgs(args));
+  await bundle(bundlerName, outDir, parseArgs(args));
 };
 
 export const registerScript = (program: Command) => program.command('bundle')
