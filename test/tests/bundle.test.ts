@@ -9,7 +9,6 @@ import {
   output,
   HttpServer,
   ServersideTestRunner,
-  BundlerName,
   WebpackBundler,
   writeFile,
 } from 'testeroni';
@@ -105,7 +104,7 @@ describe('bundle', () => {
   describe('UMD', () => {
     test('it bundles with correct title', async () => {
       const title = 'bar';
-      await bundle(BundlerName.umd, outDir, {
+      await bundle('umd', outDir, {
         title,
       });
       expect(path.resolve(outDir, 'index.html')).toMatchHTML({
@@ -117,7 +116,7 @@ describe('bundle', () => {
       const title = 'bar';
       const fileNames = ['bar', 'baz'];
       const files = await Promise.all(fileNames.map(file => makeFakeLocalFileForUMD(file, file)));
-      await bundle(BundlerName.umd, outDir, {
+      await bundle('umd', outDir, {
         title,
         files,
       });
@@ -145,7 +144,7 @@ describe('bundle', () => {
         skipPackageInstall: true,
         workingDir,
       };
-      await bundle(BundlerName.esbuild, outDir, options);
+      await bundle('esbuild', outDir, options);
       expect(path.resolve(outDir, 'index.html')).toMatchHTML({
         title,
       });
@@ -162,7 +161,7 @@ describe('bundle', () => {
         'qux': '0.0.4',
       };
       await makeFakeLocalPackages(dependencies, devDependencies)
-      await bundle(BundlerName.esbuild, outDir, {
+      await bundle('esbuild', outDir, {
         skipPackageInstall: true,
         keepWorkingFiles: true,
         title,
@@ -188,7 +187,7 @@ describe('bundle', () => {
         'qux': '0.0.4',
       };
       await makeFakeLocalPackages(dependencies, devDependencies)
-      await bundle(BundlerName.esbuild, outDir, {
+      await bundle('esbuild', outDir, {
         skipPackageInstall: true,
         keepWorkingFiles: true,
         title,
@@ -220,7 +219,7 @@ describe('bundle', () => {
         'qux': '0.0.4',
       };
       await makeFakeLocalPackages(dependencies, devDependencies)
-      await bundle(BundlerName.esbuild, outDir, {
+      await bundle('esbuild', outDir, {
         skipPackageInstall: true,
         keepWorkingFiles: true,
         title,
@@ -252,7 +251,7 @@ describe('bundle', () => {
         'qux': '0.0.4',
       };
       await makeFakeLocalPackages(dependencies, devDependencies)
-      await bundle(BundlerName.esbuild, outDir, {
+      await bundle('esbuild', outDir, {
         skipPackageInstall: true,
         keepWorkingFiles: true,
         title,

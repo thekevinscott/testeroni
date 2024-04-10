@@ -77,8 +77,8 @@ describe('getBundler', () => {
     class MockESBuildBundler {
       constructor(public outDir: string) { }
     }
-    (BUNDLERS as any)[BundlerName.esbuild] = MockESBuildBundler as any;
-    expect(getBundler(BundlerName.esbuild, './dist')).toBeInstanceOf(MockESBuildBundler);
+    (BUNDLERS as any)['esbuild'] = MockESBuildBundler as any;
+    expect(getBundler('esbuild', './dist')).toBeInstanceOf(MockESBuildBundler);
   });
 });
 
@@ -88,13 +88,13 @@ describe('checkBundleOptions', () => {
   });
 
   test.each([
-    [BundlerName.esbuild, isValidESBuildBundleOptions],
-    [BundlerName.webpack, isValidWebpackBundleOptions],
-    [BundlerName.umd, isValidUMDBundleOptions],
-    [BundlerName.node, isValidNodeBundleOptions],
+    ['esbuild', isValidESBuildBundleOptions],
+    ['webpack', isValidWebpackBundleOptions],
+    ['umd', isValidUMDBundleOptions],
+    ['node', isValidNodeBundleOptions],
   ])('checks %s options', (name, fn) => {
     const options = {};
-    checkBundleOptions(name, options)
+    checkBundleOptions(name as any, options)
     expect(fn).toHaveBeenCalledWith(options);
   });
 });
@@ -107,9 +107,9 @@ describe('bundle', () => {
       constructor(public outDir: string) { }
       bundle = spy;
     }
-    (BUNDLERS as any)[BundlerName.esbuild] = MockESBuildBundler as any;
+    (BUNDLERS as any)['esbuild'] = MockESBuildBundler as any;
     const options = {};
-    await bundle(BundlerName.esbuild, './dist', options);
+    await bundle('esbuild', './dist', options);
     expect(spy).toHaveBeenCalledWith(options);
     expect(info).toHaveBeenCalledTimes(2);
   });
