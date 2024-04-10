@@ -62,7 +62,7 @@ export class WebpackBundler extends Bundler {
     type = 'module',
     workingDir,
     additionalConfiguration,
-    isPackageInstallSilent,
+    silentPackageInstall: isPackageInstallSilent,
     packageManager,
   }: WebpackBundleOptions) {
     // const dist = path.resolve(this.outDir, this.dist);

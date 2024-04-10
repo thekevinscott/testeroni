@@ -57,7 +57,7 @@ export class ESBuildBundler extends Bundler {
     type = 'module',
     workingDir,
     additionalConfiguration,
-    isPackageInstallSilent,
+    silentPackageInstall: isPackageInstallSilent,
     packageManager,
   }: ESBuildBundleOptions) {
     const outDir = this.outDir;

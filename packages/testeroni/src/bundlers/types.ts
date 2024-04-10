@@ -27,7 +27,7 @@ export interface SharedBundleOptions {
   dependencies?: Record<string, string>;
   devDependencies?: Record<string, string>;
   additionalConfiguration?: Record<string, unknown>;
-  isPackageInstallSilent?: boolean;
+  silentPackageInstall?: boolean;
   packageManager?: PackageManager;
 }
 
