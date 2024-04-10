@@ -57,7 +57,7 @@ export class ESBuildBundler extends Bundler {
     type = 'module',
     workingDir,
     additionalConfiguration,
-    isPackageInstallSilent,
+    silentPackageInstall,
     packageManager,
   }: ESBuildBundleOptions) {
     const outDir = this.outDir;
@@ -103,7 +103,7 @@ export class ESBuildBundler extends Bundler {
         if (skipPackageInstall !== true) {
           info(`PNPM Install to ${outDir}...`);
           await installPackages(outDir, {
-            isSilent: isPackageInstallSilent,
+            isSilent: silentPackageInstall,
             packageManager,
           });
         }
