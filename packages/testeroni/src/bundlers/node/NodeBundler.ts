@@ -44,7 +44,7 @@ export class NodeBundler extends Bundler {
     packageManager,
     // workingDir,
   }: NodeBundleOptions) {
-    info('Bundling Node...');
+    // info('Bundling Node...');
     const workingDir = this.outDir;
     await withWorkingDir(async (workingDir) => {
       const packageJSONPath = path.resolve(workingDir, 'package.json');
@@ -65,8 +65,6 @@ export class NodeBundler extends Bundler {
             packageManager,
           });
         }
-
-        info('Bundled Node successfully');
       } finally {
         if (keepWorkingFiles !== true) {
           await Promise.all([

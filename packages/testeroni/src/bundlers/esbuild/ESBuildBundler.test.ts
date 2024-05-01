@@ -118,7 +118,7 @@ describe('ESBuildBundler', () => {
       workingDir,
     });
 
-    expect(info).toHaveBeenCalledTimes(5);
+    expect(info).toHaveBeenCalledTimes(3);
   });
 
   test('passes working dir if provided', async () => {

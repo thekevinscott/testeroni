@@ -53,7 +53,7 @@ export class UMDBundler extends Bundler {
     files = [],
   }: UMDBuildBundleOptions) {
     const workingDir = this.outDir;
-    info('Bundling UMD...');
+    // info('Bundling UMD...');
     await withWorkingDir(async (dist) => {
       await Promise.all([
         ...files.map(writeDependency(dist)),
@@ -63,7 +63,7 @@ export class UMDBundler extends Bundler {
         }),
       ]);
 
-      info(`Bundled UMD successfully to ${dist}`);
+      // info(`Bundled UMD successfully to ${dist}`);
     }, workingDir);
   }
 

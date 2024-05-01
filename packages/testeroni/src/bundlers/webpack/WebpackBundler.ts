@@ -72,7 +72,7 @@ export class WebpackBundler extends Bundler {
     let packageJSONPath;
     let indexHTMLFile;
     try {
-      info('Bundling Webpack...');
+      // info('Bundling Webpack...');
       await withWorkingDir(async (workingDir) => {
         indexJSEntryFile = path.resolve(workingDir, 'index.js');
         packageJSONPath = path.resolve(workingDir, 'package.json');
@@ -147,7 +147,7 @@ export class WebpackBundler extends Bundler {
         verbose('Running webpack compiler');
         await compileWebpack(compiler);
 
-        info(`successfully bundled the code for entry file ${indexJSEntryFile}`);
+        // info(`successfully bundled the code for entry file ${indexJSEntryFile}`);
       }, workingDir);
     } finally {
       if (keepWorkingFiles !== true) {
