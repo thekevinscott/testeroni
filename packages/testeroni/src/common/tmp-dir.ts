@@ -43,5 +43,8 @@ export async function withTmpDir<T>(callback: WithTmpDirFn<T>, { rootDir, remove
   if (err) {
     throw err;
   }
+  if (response === undefined) {
+    throw new Error('Response was not set');
+  }
   return response;
 };
