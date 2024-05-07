@@ -31,7 +31,7 @@ export interface SharedBundleOptions {
   packageManager?: PackageManager;
 }
 
-export type BundleOptions<N extends BundlerName> =
+export type BundleOptions<N extends BundlerName = BundlerName> =
   N extends 'esbuild' ? ESBuildBundleOptions :
   N extends 'webpack' ? WebpackBundleOptions :
   N extends 'umd' ? UMDBuildBundleOptions :
