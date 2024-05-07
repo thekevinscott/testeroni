@@ -1,5 +1,9 @@
+/* eslint-disable @typescript-eslint/no-unsafe-call */
+/* eslint-disable @typescript-eslint/no-unsafe-return */
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 export function timeit<T extends unknown[], R extends { trackTime: boolean }>(msg: string) {
-  return  (
+  return (
     testRunner: R,
     _: string | symbol,
     descriptor: PropertyDescriptor

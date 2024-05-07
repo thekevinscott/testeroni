@@ -26,6 +26,7 @@ export const logTypes: Record<LogLevel, ChalkInstance> = {
 
 export const parseMessage = (...message: unknown[]): string => message.map(m => {
   if (Array.isArray(m)) {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
     return parseMessage(...m);
   }
   if (typeof m === 'object' && m !== null) {
@@ -49,6 +50,7 @@ export const log = (type: LogLevel, message: unknown[]) => {
 
 export const setLogLevel = (newLevel: LogLevel) => {
   if (!isLogLevel(newLevel)) {
+    // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
     throw new Error(`Invalid log type provided: ${newLevel}`);
   }
   level.level = newLevel;

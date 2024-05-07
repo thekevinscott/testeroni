@@ -34,7 +34,7 @@ export async function withTmpDir<T>(callback: WithTmpDirFn<T>, { rootDir, remove
       }
     }
     catch (e) {
-      console.error(`An error has occurred while removing the temp folder at ${tmpDir}. Please remove it manually. Error: ${e}`);
+      console.error(`An error has occurred while removing the temp folder at ${tmpDir}. Please remove it manually. Error: ${JSON.stringify(e)}`);
     }
   }
   return response;

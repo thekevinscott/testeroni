@@ -1,5 +1,4 @@
 import { getTemplate as _getTemplate, } from '../../common/get-template.js';
-import { getHashedName, } from '../../common/get-hashed-name.js';
 import { writeFile, } from '../../common/fs.js';
 
 type GetTemplate = (templateName: string, args: Parameters<typeof _getTemplate>[1]) => Promise<string>;
