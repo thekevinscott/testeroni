@@ -1,5 +1,5 @@
 import { timeit, } from '../utils/timeit.js';
-import { catchFailures, } from '../utils/catchFailures.js';
+// import { catchFailures, } from '../utils/catchFailures.js';
 import { HttpServer, } from '../../http-server/HttpServer.js';
 import {
   Mock,
@@ -316,7 +316,7 @@ export class ClientsideTestRunner<D extends SupportedDriver> {
    * Test lifecycle methods
    */
 
-  @catchFailures()
+  // @catchFailures()
   @timeit<[Bundle], ClientsideTestRunner<D>>('beforeAll scaffolding')
   async beforeAll(bundle?: Bundle) {
     // const opts = this._makeOpts();
@@ -333,7 +333,7 @@ export class ClientsideTestRunner<D extends SupportedDriver> {
     ]);
   }
 
-  @catchFailures()
+  // @catchFailures()
   @timeit('afterAll clean up')
   async afterAll() {
     await Promise.all([
@@ -342,14 +342,14 @@ export class ClientsideTestRunner<D extends SupportedDriver> {
     ]);
   }
 
-  @catchFailures()
+  // @catchFailures()
   @timeit<[string], ClientsideTestRunner<D>>('beforeEach scaffolding')
   async beforeEach(pageTitleToAwait: string | null = '| Loaded', log?: boolean) {
     await this.createNewPage(log || !isSelenium(this.driver.name));
     await this.navigateToServer(pageTitleToAwait);
   }
 
-  @catchFailures()
+  // @catchFailures()
   @timeit<[AfterEachCallback], ClientsideTestRunner<D>>('afterEach clean up')
   async afterEach(callback?: AfterEachCallback) {
     await Promise.all([
