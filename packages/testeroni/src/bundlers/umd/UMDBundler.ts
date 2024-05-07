@@ -1,7 +1,6 @@
 import path from 'path';
 import { Bundler, } from '../utils/Bundler.js';
 import { writeFile, copyFile, exists, } from '../../common/fs.js';
-import { info, } from '../../common/logger.js';
 import { getTemplate, } from '../../common/get-template.js';
 import { DIST_ROOT, } from '../utils/get-root.js';
 import { withWorkingDir, } from '../utils/with-working-dir.js';

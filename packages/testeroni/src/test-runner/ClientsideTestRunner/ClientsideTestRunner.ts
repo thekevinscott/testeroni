@@ -14,7 +14,7 @@ import {
   isSelenium,
 } from './type-guards.js';
 import type { SeleniumPage, } from './webdriver/selenium-page.js';
-import { info } from '../../common/logger.js';
+import { info, } from '../../common/logger.js';
 // import { mockCdn, } from './mock-cdn.js';
 
 // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents

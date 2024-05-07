@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import path from 'path';
 import { readFile, } from './fs.js';
 import { JSONSchemaForNPMPackageJsonFiles, } from '@schemastore/package';
@@ -22,6 +23,7 @@ const isPackageJSONExports = (exports: unknown): exports is {
 
 export const getPackageJSON = async (folder: string): Promise<JSONSchema> => {
   const packageJSONPath = folder.endsWith('package.json') ? folder : path.resolve(folder, 'package.json');
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-return
   return JSON.parse(await readFile(packageJSONPath));
 };
 
@@ -61,6 +63,7 @@ export const writePackageJSON = async (file: string, contents: unknown) => {
 };
 
 export const getPackageJSONValue = (packageJSON: JSONSchema, depKey: string) => {
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-return
   return depKey.split('.').reduce((json, key) => json?.[key], packageJSON);
 };
 
@@ -73,6 +76,7 @@ function getObj(obj: JSONSchema, parts: string[], val: Value): JSONSchema {
   if (parts.length === 1) {
     return {
       ...obj,
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
       [parts[0]]: {
         ...obj[parts[0]],
         ...val,
@@ -81,6 +85,7 @@ function getObj(obj: JSONSchema, parts: string[], val: Value): JSONSchema {
   }
   return {
     ...obj,
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
     [parts[0]]: getObj(obj[parts[0]], parts.slice(1), val),
   };
 }
