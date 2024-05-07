@@ -23,7 +23,7 @@ type WithTmpDirFn<T> = (tmp: string) => Promise<T>;
 export async function withTmpDir<T>(callback: WithTmpDirFn<T>, { rootDir, removeTmpDir = true, }: WithTmpDirOpts = {}) {
   const tmpDir = await makeTmpDir(rootDir);
 
-  let response: T;
+  let response: undefined | T = undefined;
   let err: unknown;
   try {
     response = await callback(tmpDir);
