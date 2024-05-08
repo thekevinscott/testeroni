@@ -14,7 +14,6 @@ export const makeTmpDir = async (root = TMP_DIR): Promise<string> => {
   return folder;
 };
 
-
 interface WithTmpDirOpts {
   rootDir?: string;
   removeTmpDir?: boolean;
@@ -42,9 +41,6 @@ export async function withTmpDir<T>(callback: WithTmpDirFn<T>, { rootDir, remove
   }
   if (err) {
     throw err;
-  }
-  if (response === undefined) {
-    throw new Error('Response was not set');
   }
   return response;
 };
