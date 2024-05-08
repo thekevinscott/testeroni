@@ -64,8 +64,12 @@ export class RunNodeScriptError extends Error {
   }
 }
 
+const isBuffer = (data: unknown): data is Buffer => {
+  return data instanceof Buffer;
+};
+
 type ContentFn = (outputDir: string) => Promise<string>;
-const runNodeScript = (contentFn: ContentFn, {
+const runNodeScript = async (contentFn: ContentFn, {
   cwd,
   stderr,
   module,
@@ -73,22 +77,30 @@ const runNodeScript = (contentFn: ContentFn, {
   module?: boolean;
   cwd: string;
   stderr?: typeof process.stderr;
-}): Promise<Buffer> => withTmpDir(async (tmpDir) => {
-  const dataFile = path.join(tmpDir, getHashedName());
-  const contents = await contentFn(dataFile);
+}): Promise<Buffer> => {
+  const result = await withTmpDir(async (tmpDir) => {
+    const dataFile = path.join(tmpDir, getHashedName());
+    const contents = await contentFn(dataFile);
 
-  await callExec(`node ${module ? '--input-type=module' : ''} -e "${hoistImports(contents.replace(/"/g, '\\"'))}"`, {
-    cwd,
-    env: {
-    },
-  }, chunk => {
-    info('[PAGE]', chunk);
-  }, stderr);
-  if (!await exists(dataFile)) {
-    throw new Error(`Data file ${dataFile} was not created. Double check that your Node script writes its output to the given data file.`);
+    await callExec(`node ${module ? '--input-type=module' : ''} -e "${hoistImports(contents.replace(/"/g, '\\"'))}"`, {
+      cwd,
+      env: {
+      },
+    }, chunk => {
+      info('[PAGE]', chunk);
+    }, stderr);
+    if (!await exists(dataFile)) {
+      throw new Error(`Data file ${dataFile} was not created. Double check that your Node script writes its output to the given data file.`);
+    }
+    return readFile(dataFile);
+  });
+
+  if (!isBuffer(result)) {
+    throw new Error(`result is not a Buffer: ${result}`);
   }
-  return readFile(dataFile);
-});
+
+  return result;
+};
 
 export class ServersideTestRunner {
   trackTime: boolean;

@@ -71,6 +71,7 @@ export class WebpackBundler extends Bundler {
     let indexJSEntryFile;
     let packageJSONPath;
     let indexHTMLFile;
+    let err: unknown;
     try {
       // info('Bundling Webpack...');
       await withWorkingDir(async (workingDir) => {
@@ -149,6 +150,8 @@ export class WebpackBundler extends Bundler {
 
         // info(`successfully bundled the code for entry file ${indexJSEntryFile}`);
       }, workingDir);
+    } catch (_err) {
+      err = _err;
     } finally {
       if (keepWorkingFiles !== true) {
         await Promise.all([
@@ -157,6 +160,9 @@ export class WebpackBundler extends Bundler {
           indexJSEntryFile,
         ].map(removeIfExists));
       }
+    }
+    if (err) {
+      throw err;
     }
   }
 }

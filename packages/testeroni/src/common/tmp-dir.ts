@@ -14,7 +14,6 @@ export const makeTmpDir = async (root = TMP_DIR): Promise<string> => {
   return folder;
 };
 
-
 interface WithTmpDirOpts {
   rootDir?: string;
   removeTmpDir?: boolean;
@@ -23,9 +22,12 @@ type WithTmpDirFn<T> = (tmp: string) => Promise<T>;
 export async function withTmpDir<T>(callback: WithTmpDirFn<T>, { rootDir, removeTmpDir = true, }: WithTmpDirOpts = {}) {
   const tmpDir = await makeTmpDir(rootDir);
 
-  let response: T;
+  let response: undefined | T = undefined;
+  let err: unknown;
   try {
     response = await callback(tmpDir);
+  } catch (_err) {
+    err = _err;
   }
   finally {
     try {
@@ -36,6 +38,9 @@ export async function withTmpDir<T>(callback: WithTmpDirFn<T>, { rootDir, remove
     catch (e) {
       console.error(`An error has occurred while removing the temp folder at ${tmpDir}. Please remove it manually. Error: ${JSON.stringify(e)}`);
     }
+  }
+  if (err) {
+    throw err;
   }
   return response;
 };

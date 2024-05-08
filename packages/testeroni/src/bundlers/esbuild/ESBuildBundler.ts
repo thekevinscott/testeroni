@@ -65,6 +65,7 @@ export class ESBuildBundler extends Bundler {
     let indexJSEntryFile: undefined | string;
     let packageJSONPath: undefined | string;
     // const dist = path.resolve(this.outDir, this.dist);
+    let err: unknown;
 
     try {
       await withWorkingDir(async workingDir => {
@@ -119,8 +120,8 @@ export class ESBuildBundler extends Bundler {
         }));
         info(`successfully bundled the code for entry file ${indexJSEntryFile}`);
       }, workingDir);
-    } catch (err) {
-      console.error(err);
+    } catch (_err) {
+      err = _err;
     } finally {
       if (keepWorkingFiles !== true) {
         await Promise.all([
@@ -128,6 +129,9 @@ export class ESBuildBundler extends Bundler {
           indexJSEntryFile,
         ].map(removeIfExists));
       }
+    }
+    if (err) {
+      throw err;
     }
   }
 }
