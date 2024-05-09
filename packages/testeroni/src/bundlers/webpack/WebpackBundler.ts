@@ -5,7 +5,7 @@ import { removeIfExists, } from '../utils/remove-if-exists.js';
 import HtmlWebpackPlugin from 'html-webpack-plugin';
 import { info, verbose, } from '../../common/logger.js';
 import { getTemplate as _getTemplate, } from '../../common/get-template.js';
-import { copyFile, } from '../../common/fs.js';
+import { copyFile, mkdirp, } from '../../common/fs.js';
 import { installPackages, } from '../../common/npm.js';
 import { writeIndexJS, } from '../utils/write-index-js.js';
 import { writePackageJSON, } from '../utils/write-package-json.js';
@@ -105,6 +105,10 @@ export class WebpackBundler extends Bundler {
           ),
         ]);
 
+        await Promise.all([
+          mkdirp(this.outDir),
+          mkdirp(workingDir),
+        ]);
         if (skipPackageInstall !== true) {
           info(`[Webpack] PNPM Install to ${this.outDir}...`);
           await installPackages(this.outDir, {

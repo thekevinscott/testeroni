@@ -4,7 +4,7 @@ import { Bundler, } from '../utils/Bundler.js';
 import { removeIfExists, } from '../utils/remove-if-exists.js';
 import { getTemplate as _getTemplate, } from '../../common/get-template.js';
 import { installPackages, } from '../../common/npm.js';
-import { writeFile, } from '../../common/fs.js';
+import { mkdirp, writeFile, } from '../../common/fs.js';
 import { info, } from '../../common/logger.js';
 import { writeIndexJS, } from '../utils/write-index-js.js';
 import { writePackageJSON, } from '../utils/write-package-json.js';
@@ -101,6 +101,10 @@ export class ESBuildBundler extends Bundler {
           ),
         ]);
 
+        await Promise.all([
+          mkdirp(outDir),
+          mkdirp(workingDir),
+        ]);
         if (skipPackageInstall !== true) {
           info(`[ESBuild] PNPM Install to ${outDir}...`);
           await installPackages(outDir, {

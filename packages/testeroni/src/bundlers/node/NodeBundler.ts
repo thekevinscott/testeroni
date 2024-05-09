@@ -8,6 +8,7 @@ import { writePackageJSON, } from '../utils/write-package-json.js';
 import { DIST_ROOT, } from '../utils/get-root.js';
 import { withWorkingDir, } from '../utils/with-working-dir.js';
 import { NodeBundleOptions, } from './types.js';
+import { mkdirp, } from '../../common/fs.js';
 export { NodeBundleOptions, } from './types.js';
 
 /***
@@ -59,6 +60,9 @@ export class NodeBundler extends Bundler {
           },
         });
 
+        await Promise.all([
+          mkdirp(workingDir),
+        ]);
         if (skipPackageInstall !== true) {
           info(`[Node] PNPM Install to ${workingDir}...`);
           await installPackages(workingDir, {
