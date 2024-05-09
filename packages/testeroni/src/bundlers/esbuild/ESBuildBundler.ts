@@ -102,14 +102,14 @@ export class ESBuildBundler extends Bundler {
         ]);
 
         if (skipPackageInstall !== true) {
-          info(`PNPM Install to ${outDir}...`);
+          info(`[ESBuild] PNPM Install to ${outDir}...`);
           await installPackages(outDir, {
             isSilent: silentPackageInstall,
             packageManager,
           });
         }
 
-        info(`Bundle the code for entry file ${indexJSEntryFile}`);
+        info(`[ESBuild] Bundle the code for entry file ${indexJSEntryFile}`);
         const entryPoints: string[] = [indexJSEntryFile,];
         await withTmpDir((absWorkingDir) => esbuild({
           entryPoints,
@@ -118,7 +118,7 @@ export class ESBuildBundler extends Bundler {
           ...additionalConfiguration,
           outdir: outDir,
         }));
-        info(`successfully bundled the code for entry file ${indexJSEntryFile}`);
+        info(`[ESBuild] successfully bundled the code for entry file ${indexJSEntryFile}`);
       }, workingDir);
     } catch (_err) {
       err = _err;
