@@ -106,14 +106,14 @@ export class WebpackBundler extends Bundler {
         ]);
 
         if (skipPackageInstall !== true) {
-          info(`PNPM Install to ${this.outDir}...`);
+          info(`[Webpack] PNPM Install to ${this.outDir}...`);
           await installPackages(this.outDir, {
             isSilent: silentPackageInstall,
             packageManager,
           });
         }
 
-        info(`Bundle the code for entry file ${indexJSEntryFile}`);
+        info(`[Webpack] Bundle the code for entry file ${indexJSEntryFile}`);
 
         const htmlWebpackPlugin: WebpackPluginInstance = new HtmlWebpackPlugin({
           title,
