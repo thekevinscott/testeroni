@@ -1,5 +1,6 @@
 import { spawn, } from 'child_process';
 import { getLogLevel, verbose, } from './logger.js';
+import { exists, } from './fs.js';
 
 const parseCommand = (_command: string | string[]) => {
   const command = Array.isArray(_command) ? _command : _command.split(' ');
@@ -36,6 +37,9 @@ export const npmInstall = async (cwd: string, {
   isSilent = false,
   registryURL,
 }: InstallPackagesOptsNPM = {}) => {
+  if (!(await exists(cwd))) {
+    throw new Error(`Directory does not exist: ${cwd}`);
+  }
   const logLevel = getLogLevel();
   const command = [
     'npm',
@@ -55,6 +59,9 @@ export const npmInstall = async (cwd: string, {
 export const pnpmInstall = async (cwd: string, {
   isSilent = false,
 }: InstallPackagesOptsPNPM = {}) => {
+  if (!(await exists(cwd))) {
+    throw new Error(`Directory does not exist: ${cwd}`);
+  }
   // const logLevel = getLogLevel();
   const command = [
     'pnpm',
