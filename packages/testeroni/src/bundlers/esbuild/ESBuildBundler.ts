@@ -106,8 +106,8 @@ export class ESBuildBundler extends Bundler {
           mkdirp(workingDir),
         ]);
         if (skipPackageInstall !== true) {
-          info(`[ESBuild] PNPM Install to ${outDir}...`);
-          await installPackages(outDir, {
+          info(`[ESBuild] PNPM Install to ${workingDir}...`);
+          await installPackages(workingDir, {
             isSilent: silentPackageInstall,
             packageManager,
           });

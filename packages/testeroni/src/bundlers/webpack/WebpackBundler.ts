@@ -110,8 +110,8 @@ export class WebpackBundler extends Bundler {
           mkdirp(workingDir),
         ]);
         if (skipPackageInstall !== true) {
-          info(`[Webpack] PNPM Install to ${this.outDir}...`);
-          await installPackages(this.outDir, {
+          info(`[Webpack] PNPM Install to ${workingDir}...`);
+          await installPackages(workingDir, {
             isSilent: silentPackageInstall,
             packageManager,
           });
