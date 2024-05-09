@@ -89,7 +89,7 @@ export async function installPackages(cwd: string, {
   ...opts
 }: InstallPackagesOpts & { packageManager?: PackageManager } = {}) {
   if (packageManager === 'npm') {
-    await pnpmInstall(cwd, opts);
+    await npmInstall(cwd, opts);
   } else {
     await pnpmInstall(cwd, opts);
   }
