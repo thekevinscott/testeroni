@@ -1,0 +1,39 @@
+name: 'Version'
+on:
+  push:
+    branches:
+      - 'main'
+    paths:
+      - '.github/workflows/version.yaml'
+      - 'packages/testeroni/**/*.ts'
+      - 'packages/testeroni/README.md'
+      - 'packages/testeroni/**/*.ejs'
+      - '!packages/testeroni/javascript/**/*.test.ts'
+
+jobs:
+  version:
+    runs-on: 'ubuntu-latest'
+    if: ${{ ! endsWith(github.event.head_commit.message, '[skip-version]') }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: 'Automated Version Bump'
+        id: version-bump
+        uses: 'phips28/gh-action-bump-version@master'
+        with:
+          tag-prefix: 'js/autogrammer-v'
+          # skip-commit:  'true'
+          # skip-tag:  'true'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+          PACKAGEJSON_DIR: './packages/testeroni'
+          version-type: 'patch'
+
+      - name: 'New Tag'
+        env:
+          NEW_TAG: ${{ steps.version-bump.outputs.newTag }}
+        run: echo "new tag $NEW_TAG"
