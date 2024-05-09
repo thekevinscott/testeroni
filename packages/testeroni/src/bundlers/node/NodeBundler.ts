@@ -60,7 +60,7 @@ export class NodeBundler extends Bundler {
         });
 
         if (skipPackageInstall !== true) {
-          info(`PNPM Install to ${workingDir}...`);
+          info(`[Node] PNPM Install to ${workingDir}...`);
           await installPackages(workingDir, {
             isSilent: silentPackageInstall,
             packageManager,
