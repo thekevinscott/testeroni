@@ -167,13 +167,23 @@ export class ClientsideTestRunner<D extends SupportedDriver> {
     return this.driver.waitForTitle(pageTitleToAwait);
   }
 
-  public async navigateToServer(pageTitleToAwait: string | null) {
-    const url = this.getServerURL();
+  public async goto(url: string) {
     const page = isPuppeteer(this.driver.name) ? this.page as Page<SupportedDriver.puppeteer> : isPlaywright(this.driver.name) ? this.page as Page<SupportedDriver.playwright> : isSelenium(this.driver.name) ? this.page as SeleniumPage : undefined;
     if (page === undefined) {
       throw new Error(`Page is undefined, invalid driver: ${this.driver.name}`);
     }
-    await page.goto(url);
+    if (url.startsWith('http')) {
+      await page.goto(url);
+    } else {
+      const serverURL = this.getServerURL();
+      // TODO: Join this more effectively
+      await page.goto(`${serverURL}${url}`);
+    }
+  }
+
+  public async navigateToServer(pageTitleToAwait: string | null) {
+    const url = this.getServerURL();
+    await this.goto(url);
     if (pageTitleToAwait !== null) {
       const timer = setTimeout(() => {
         info(`Waiting for title ${pageTitleToAwait}...`);
